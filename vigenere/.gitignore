@@ -1,0 +1,7 @@
+#
+# Unnecessary files
+#
+*.zip
+*.log
+*.exe
+*.bat

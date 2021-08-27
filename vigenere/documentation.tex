@@ -1,0 +1,104 @@
+% Created 2021-08-13 sex 18:22
+% Intended LaTeX compiler: pdflatex
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{grffile}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{textcomp}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{hyperref}
+\usepackage{minted}
+\usepackage{indentfirst}
+\usepackage{libertine}
+\usepackage{tkz-graph}
+\usepackage[usenames,dvipsnames]{xcolor}
+\usepackage[left=3cm,bottom=3cm,top=2cm,right=2cm]{geometry}
+\author{Rafael Campos Nunes \(\\\) 19/0098295}
+\date{}
+\title{Cifra de Vigenère}
+\hypersetup{
+ pdfauthor={Rafael Campos Nunes \(\\\) 19/0098295},
+ pdftitle={Cifra de Vigenère},
+ pdfkeywords={},
+ pdfsubject={},
+ pdfcreator={Emacs 26.3 (Org mode 9.1.9)},
+ pdflang={English}}
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\(\newpage\)
+
+\section{A Cifra de Vigenère}
+\label{sec:org17a65a6}
+
+A cifra de Vigenère é caracterizada como uma cifra de fluxo simétrica pois atua
+em cada caractere (\emph{byte}) que passa pelo algoritmo, transformando texto em
+criptograma que, por fim, é retornado. Ele é considerado simétrico pois utiliza
+a mesma chave para as etapas de cifragem e decifragem.
+
+Uma característica importante da cifra é que ela é polialfabética, o que reduz
+ataques relacionados à frequência de caracteres do criptograma e, embora isso
+seja possível, a análise do criptograma através da frequência de palavras é um
+pouco mais complicada pois envolve mecanismos que não são conhecidos \emph{a priori},
+tal como o tamanho da chave utilizada para cifrar o texto.
+
+\subsection{Cifração}
+\label{sec:org45c9033}
+
+A cifra do algoritmo é um processo similar ao utilizado na cifra de Caesar, com
+a diferença de utilizar um polialfabeto para transformar o texto puro em
+criptograma.
+
+O processo de cifragem de uma mensagem \(M\) com uma chave \(K\) de tamanho \(n\) é
+denotado pela equação abaixo para um alfabeto definido na tabela ASCII.
+
+\begin{equation}
+\label{eq:1}
+C_i = M_i + K_{i \mod len(K)}
+\end{equation}
+
+A soma definida na equação \(\ref{eq:1}\) é uma soma aritmética da posição da
+letra \(M_i\) na tabela ASCII com a letra pertencente a chave \(K_{i \mod len(K)}\)
+também na tabela ASCII. O resultado é um criptograma \(C\) com tamanho idêntico à
+mensagem \(M\).
+
+\subsection{Decifração}
+\label{sec:org5f9e193}
+
+O processo de decifragem é análogo ao de cifragem, com a diferença na operação
+que, ao invés de somar é realizado a operação de subtração sobre a mensagem,
+como denota a equação abaixo
+
+\begin{equation}
+\label{eq:1}
+M_i = C_i - K_{i \mod len(K)}
+\end{equation}
+
+\section{Utilização da ferramenta}
+\label{sec:org1777b73}
+
+A ferramenta pode ser utilizada de acordo com as opções definidas em --help.
+
+\begin{minted}[frame=lines,linenos=true]{shell}
+$ ./vigenere.exe --help
+\end{minted}
+
+\section{Limitações da ferramenta}
+\label{sec:orgc802874}
+
+Apesar do programa ter a função de realizar a criptoanálise sobre um texto,
+é importante ressaltar que essa configuração só funcionará para chaves de até
+100 caracteres. Esse número não é por acaso, foi limitado dessa maneira para
+facilitar a análise de grandes corpos de texto em que se supõe que o número
+de coincidências do criptograma com ele mesmo em diferentes posições não terá
+uma distância maior do que 100 caracteres.
+\end{document}
