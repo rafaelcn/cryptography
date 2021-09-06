@@ -7,6 +7,8 @@ def parser():
     p.add_argument('-k', '--key', help='key', required=True)
     p.add_argument('-i', '--input', help='input file', required=True)
     p.add_argument('-o', '--output', help='output file', required=False)
+    p.add_argument('-m', '--modes', help='AES modes of operation',
+                   required=False, default='ecb,ctr')
 
     return p
 
