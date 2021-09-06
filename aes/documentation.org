@@ -5,7 +5,7 @@
 #+LATEX_HEADER: \usepackage[left=3cm,bottom=3cm,top=2cm,right=2cm]{geometry}
 
 #+TITLE: O Avançado Padrão de Criptografia (AES)
-#+AUTHOR: Rafael Campos Nunes$^1$, Rafael Nogalha$^2$ $\\$ 19/0098295$^1$ $^2$
+#+AUTHOR: Rafael Campos Nunes$^1$, Rafael Henrique Nogalha de Lima$^2$ $\\$ 19/0098295$^1$ 19/0036966$^2$
 #+DATE:
 
 $\newpage$
