@@ -1,7 +1,7 @@
 import argparse
 
 
-def parser():
+def init_parser():
     p = argparse.ArgumentParser(description='AES')
 
     p.add_argument('-k', '--key', help='key', required=True)
@@ -15,14 +15,14 @@ def parser():
 
 def main():
 
-    p = parser().parse_args()
+    parser = init_parser().parse_args()
 
-    if p.output is None:
-        p.output = p.input + '.enc'
+    if parser.output is None:
+        parser.output = parser.input + '.enc'
 
     data = ""
 
-    with open(p.input, 'rb') as f:
+    with open(parser.input, 'rb') as f:
         data = f.read()
 
     print(data)
