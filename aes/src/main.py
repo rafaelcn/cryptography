@@ -36,9 +36,9 @@ def main():
     key_size = len(parser.key)
     block_size = math.ceil(len(data) / parser.block_size)
 
-    print('imagem com {} bytes, criando {} blocos...'.format(len(data),
+    print('image with {} bytes, creating {} blocks...'.format(len(data),
           block_size))
-    print('chave com {} bytes'.format(key_size))
+    print('key with {} bytes'.format(key_size))
     #print(data)
 
 
