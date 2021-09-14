@@ -61,7 +61,7 @@ x_time = lambda a: (((a << 1) ^ 0x1B) & 0xFF) if (a & 0x80) else (a << 1)
 def text_to_matrix(text):
     matrix = []
     for i in range(16):
-        byte = (text >> (8 * (15 - i))) & 0xFF
+        byte = ((text)[0] >> (8 * (15 - i))) & 0xFF
         if i % 4 == 0:
             matrix.append([byte])
         else:
