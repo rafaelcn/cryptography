@@ -32,7 +32,7 @@ class AES:
         self.key = key
 
 
-def encrypt(self, plaintext: dict, key: bytes) -> bytes:
+def encrypt(plaintext: dict, key: bytes) -> bytes:
     # offset(128 bits) = 16
     round_number = 0
     offset = 16
@@ -98,5 +98,5 @@ def mix_columns(r):
     return r
 
 
-def decrypt(self, ciphertext: bytes, key: bytes) -> bytes:
+def decrypt(ciphertext: bytes, key: bytes) -> bytes:
     pass
