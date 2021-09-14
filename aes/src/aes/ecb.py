@@ -142,9 +142,7 @@ class AES:
         return [key_columns[4*i : 4*(i+1)] for i in range(len(key_columns) // 4)]
 
     def encrypt_block(self, plaintext):
-        """
-        Encrypts a single block of 16 byte long plaintext.
-        """
+
         # assert len(plaintext) == 128
 
         plain_state = bytes2matrix(plaintext)
@@ -164,9 +162,7 @@ class AES:
         return matrix2bytes(plain_state)
 
     def decrypt_block(self, ciphertext):
-        """
-        Decrypts a single block of 16 byte long ciphertext.
-        """
+
         # assert len(ciphertext) == 128
 
         cipher_state = bytes2matrix(ciphertext)
