@@ -3,3 +3,8 @@
 #
 *.pyc
 *.pyo
+
+#
+# encrypted files
+#
+*.enc
