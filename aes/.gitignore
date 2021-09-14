@@ -1,0 +1,10 @@
+#
+# python binary files
+#
+*.pyc
+*.pyo
+
+#
+# encrypted files
+#
+*.enc
