@@ -1,6 +1,6 @@
 
 
-rijndael_block = [
+__rijndael_block = [
     0x63, 0x7C, 0x77, 0x7B, 0xF2, 0x6B, 0x6F, 0xC5, 0x30, 0x01, 0x67, 0x2B,
     0xFE, 0xD7, 0xAB, 0x76, 0xCA, 0x82, 0xC9, 0x7D, 0xFA, 0x59, 0x47, 0xF0,
     0xAD, 0xD4, 0xA2, 0xAF, 0x9C, 0xA4, 0x72, 0xC0, 0xB7, 0xFD, 0x93, 0x26,
@@ -25,7 +25,7 @@ rijndael_block = [
     0xB0, 0x54, 0xBB, 0x16,
 ]
 
-rijndael_block_inv = [
+__rijndael_block_inv = [
     0x52, 0x09, 0x6a, 0xd5, 0x30, 0x36, 0xa5, 0x38, 0xbf, 0x40, 0xa3, 0x9e,
     0x81, 0xf3, 0xd7, 0xfb, 0x7c, 0xe3, 0x39, 0x82, 0x9b, 0x2f, 0xff, 0x87,
     0x34, 0x8e, 0x43, 0x44, 0xc4, 0xde, 0xe9, 0xcb, 0x54, 0x7b, 0x94, 0x32,
@@ -57,7 +57,7 @@ class AES:
         self.key = key
 
 
-def encrypt(plaintext: dict, key: bytes) -> bytes:
+def encrypt(plaintext: bytes, key: bytes) -> bytes:
     # offset(128 bits) = 16
     round_number = 0
     offset = 16
@@ -69,11 +69,11 @@ def encrypt(plaintext: dict, key: bytes) -> bytes:
         crypt = shift_rows(crypt)
 
         if(round_number < 9):
-            coluna0 = mix_columns([crypt[0], crypt[1], crypt[2], crypt[3]])
-            coluna1 = mix_columns([crypt[4], crypt[5], crypt[6], crypt[7]])
-            coluna2 = mix_columns([crypt[8], crypt[9], crypt[10], crypt[11]])
-            coluna3 = mix_columns([crypt[12], crypt[13], crypt[14], crypt[16]])
-            crypt = coluna0 + coluna1 + coluna2 + coluna3
+            column0 = mix_columns([crypt[0], crypt[1], crypt[2], crypt[3]])
+            column1 = mix_columns([crypt[4], crypt[5], crypt[6], crypt[7]])
+            column2 = mix_columns([crypt[8], crypt[9], crypt[10], crypt[11]])
+            column3 = mix_columns([crypt[12], crypt[13], crypt[14], crypt[15]])
+            crypt = column0 + column1 + column2 + column3
 
         round_number = round_number + 1
 
@@ -86,20 +86,21 @@ def encrypt(plaintext: dict, key: bytes) -> bytes:
 def round(r, key):
     for s in range(0, 16):
         r[s] = r[s] ^ key[s]
+
     return r
 
 
 def sub_bytes(r):
     bloco_rijndael_s_t = [None] * 16
     for s in range(0, 16):
-        bloco_rijndael_s_t[s] = rijndael_block[r[s]]
+        bloco_rijndael_s_t[s] = __rijndael_block[r[s]]
     return bloco_rijndael_s_t
 
 
 def shift_rows(r):
-    r[0][1], r[1][1], r[2][1], r[3][1] = r[1][1], r[2][1], r[3][1], r[0][1]
-    r[0][2], r[1][2], r[2][2], r[3][2] = r[2][2], r[3][2], r[0][2], r[1][2]
-    r[0][3], r[1][3], r[2][3], r[3][3] = r[3][3], r[0][3], r[1][3], r[2][3]
+    r[0], r[1], r[2], r[3] = r[1], r[2], r[3], r[0]
+    r[0], r[1], r[2], r[3] = r[2], r[3], r[0], r[1]
+    r[0], r[1], r[2], r[3] = r[3], r[0], r[1], r[2]
     return r
 
 
