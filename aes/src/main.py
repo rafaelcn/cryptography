@@ -29,6 +29,7 @@ def main():
     print(parser.block_size)
     print(parser.modes)
     print(parser.input)
+    print(parser.output)
 
     with open(parser.input, 'rb') as f:
             data = f.read()
@@ -38,7 +39,8 @@ def main():
 
     print('image with {} bytes, creating {} blocks...'.format(len(data),
           block_size))
-    print('key with {} bytes'.format(key_size))
+    print('key with {} bytes, creating a block of size {}'.format(key_size,
+          parser.block_size))
 
     key_block = bytes(parser.key, 'utf-8')
 
@@ -57,10 +59,16 @@ def main():
     #
     # print("key", key_block)
 
+    # converting it to a list of integers
+    data_block = [x for x in data]
+    key_block = [x for x in key_block]
+
     if parser.modes == 'ecb':
         from aes import cypher
-        #cypher.encrypt(data_blocks, key_block)
-        cypher.encrypt(bytearray(data), key_block)
+        cryptogram = cypher.encrypt(data_block, key_block)
+
+        with open(parser.output, 'wb') as f:
+            f.write(bytes(cryptogram))
 
 
 if __name__ == "__main__":

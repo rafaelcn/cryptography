@@ -64,7 +64,7 @@ def encrypt(plaintext: bytes, key: bytes) -> bytes:
 
     crypt = round(plaintext, key[0:offset])
 
-    while round_number < 10:
+    while offset <= 128:
         crypt = sub_bytes(crypt)
         crypt = shift_rows(crypt)
 
@@ -75,10 +75,11 @@ def encrypt(plaintext: bytes, key: bytes) -> bytes:
             column3 = mix_columns([crypt[12], crypt[13], crypt[14], crypt[15]])
             crypt = column0 + column1 + column2 + column3
 
-        round_number = round_number + 1
-
-        offset = offset + 16
+        print("{} ks: {} off: {} k: {}".format(round_number, len(key), offset, key[offset - 16:offset]))
         crypt = round(plaintext, key[offset - 16:offset])
+
+        offset += 16
+        round_number += 1
 
     return crypt
 
