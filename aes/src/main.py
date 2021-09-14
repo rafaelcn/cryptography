@@ -63,7 +63,7 @@ def main():
 
     if parser.modes == 'ecb':
         from aes import cypher
-        cypher.encrypt(data_blocks, key_block, data_blocks)
+        cypher.encrypt(data_blocks, key_block)
 
 
 if __name__ == "__main__":
