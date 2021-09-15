@@ -19,7 +19,7 @@ utiliza uma rede Feistel e é rápido tanto em hardware quanto em software.
 
 ** Implementação do Algoritmo
 
-O AES 
+O AES
 
 *** ECB
 
@@ -35,13 +35,30 @@ descriptografar em paralelo.
 
 *** CTR
 
+* Arquitetura do Projeto
+
 * Limitações
+
 
 * Configuração de Ambiente
 
 O ambiente utilizado para construção e teste do trabalho é o GNU/Linux, com o
 python na versão 3.6.9. No Windows o python3 é instalado com o nome python.
 certifique-se de que está utilizando a versão correta com ~python --version~.
+
+Se for desejo do corretor, o trabalho também contém testes que podem ser
+executados afim de demonstrar a corretude do algoritmo. Para isso basta instalar
+a única dependência necessária (Crypto) através do pip com o seguinte comando:
+
+#+BEGIN_SRC shell
+$ pip install -r requirements.txt
+#+END_SRC
+
+Após instalar a dependência, execute o script ~src/(ctr|ecb)_test.py~. O CTR vai
+falhar de imediato pois a implementação do CTR na biblioteca Crypto é diferente
+da realizada por nós.
+
+** Execução e testes do programa
 
 O programa na sua configuração atual suporta diversos tipos de parâmetros, todos
 listados e documentos ao executar o comando ~python3 src/main.py --help~.
@@ -57,9 +74,6 @@ Dois dos argumentos que podem confundir o usuário é o ~-c~ e o ~-r~. O primeir
 diz respeito ao número de ciclos de cifração e decifração que será aplicado ao
 arquivo e o segundo é o número de rodadas que o algoritmo irá executar para
 cifrar o arquivo.
-
-
-
 
 * Footnotes
 
