@@ -5,7 +5,7 @@ import argparse
 
 from PIL import Image
 
-from aes import ecb, ctr_1
+from aes import ecb, ctr
 
 
 def create_parser():
@@ -80,7 +80,7 @@ def main():
     if parser.modes == 'ecb':
         alg = ecb.ECB(key_block, parser.rounds)
     else:
-        alg = ctr_1.CTR(key_block, parser.initialization_vector, parser.rounds)
+        alg = ctr.CTR(key_block, parser.initialization_vector, parser.rounds)
 
     hashes = []
 

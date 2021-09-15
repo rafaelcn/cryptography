@@ -1,5 +1,6 @@
 from . import common
 
+
 class CTR:
     def __init__(self, master_key, iv, rounds=10):
         self.iv = iv
