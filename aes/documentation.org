@@ -10,15 +10,57 @@
 
 $\newpage$
 
-* Introdução
-
 * O AES
 
-O algoritmo AES é uma evolução do DES - sendo este utilizador de estruturas de
-Feistel -.
+O algoritmo AES (Advanced Encryption Standard) é uma especificação de
+criptografia criado por Rijndael[fn:1], sendo uma cifra de bloco de chave
+simétrica. Este algoritmo, ao contrário do DES (Data Encryption Standard), não
+utiliza uma rede Feistel e é rápido tanto em hardware quanto em software.
 
+** Implementação do Algoritmo
+
+O AES 
+
+*** ECB
+
+Esse é o modo mais simples do AES. Basicamente, o /plaintext/ é dividido em
+blocos, e no caso da implementação do trabalho, ele tem comprimento de 128 bits.
+E a cada rodada da criptografia, os dados são preenchidos até que fiquem com o
+mesmo comprimento do bloco. Assim, cada bloco será criptografado com a mesma
+chave e o mesmo algoritmo. Logo, a vulnerabilidade do algoritmo está nessa
+última característica apresentada, pois se criptografarmos o mesmo /plaintext/,
+obteremos o mesmo /cyphertext/, tendo assim a possibilidade de criptografar e
+descriptografar em paralelo.
+
+
+*** CTR
+
+* Limitações
 
 * Configuração de Ambiente
 
 O ambiente utilizado para construção e teste do trabalho é o GNU/Linux, com o
-python na versão 3.6.9.
+python na versão 3.6.9. No Windows o python3 é instalado com o nome python.
+certifique-se de que está utilizando a versão correta com ~python --version~.
+
+O programa na sua configuração atual suporta diversos tipos de parâmetros, todos
+listados e documentos ao executar o comando ~python3 src/main.py --help~.
+Exemplos de utilização são listados abaixo.
+
+#+BEGIN_SRC shell
+$ python3 src/main.py -i assets/github_profile.png -k "sua chave"
+$ python3 src/main.py -i assets/github_profile.png -k "sua chave" -m ctr
+$ python3 src/main.py -i assets/github_profile.png -k "sua chave" -m ctr -c 5
+#+END_SRC
+
+Dois dos argumentos que podem confundir o usuário é o ~-c~ e o ~-r~. O primeiro
+diz respeito ao número de ciclos de cifração e decifração que será aplicado ao
+arquivo e o segundo é o número de rodadas que o algoritmo irá executar para
+cifrar o arquivo.
+
+
+
+
+* Footnotes
+
+[fn:1] Composição de nome para os dois autores originais Vincent Rijmen e Joan Daemen
