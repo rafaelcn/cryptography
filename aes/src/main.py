@@ -45,9 +45,6 @@ def main():
     print("operation mode: {}".format(parser.modes))
     print("input file: {}".format(parser.input))
 
-    #with open(parser.input, 'rb') as f:
-    #    data = f.read()
-
     with Image.open(parser.input) as im:
         image = im
         data = im.tobytes()

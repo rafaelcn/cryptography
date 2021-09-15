@@ -36,6 +36,9 @@ class ECB:
         """
         Encrypt a plaintext with the given key.
         """
+        if len(plaintext) <= 0 or len(plaintext) % 16 != 0:
+            raise ValueError('plaintext must be a multiple of 16 bytes')
+
         cryptogram = common.bytes2matrix(plaintext)
 
         common.add_round_key(cryptogram, self._key_matrices[0])
@@ -56,6 +59,9 @@ class ECB:
         """
         Decrypt a cryptogram with the given key.
         """
+        if len(cryptogram) <= 0 or len(cryptogram) % 16 != 0:
+            raise ValueError('plaintext must be a multiple of 16 bytes')
+
         plaintext = common.bytes2matrix(cryptogram)
 
         common.add_round_key(plaintext, self._key_matrices[-1])
