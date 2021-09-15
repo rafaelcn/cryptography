@@ -7,4 +7,4 @@
 #
 # encrypted files
 #
-*.enc
+*.enc*
