@@ -52,7 +52,7 @@ rijndael_block_inv = [
 ]
 
 
-class CTR:
+class CTR1:
     __round_column = (
         0x00, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40,
         0x80, 0x1B, 0x36, 0x6C, 0xD8, 0xAB, 0x4D, 0x9A,
@@ -68,32 +68,32 @@ class CTR:
     def encrypt(self, plaintext):
         """
         """
+        blocks = []
         nonce = self.iv
-        blocks = self.__split_blocks(plaintext, require_padding=False)
-        cryptogram_blocks = []
+        split_blocks = self.__split_blocks(plaintext, require_padding=False)
 
-        for plaintext_block in blocks:
+        for plaintext_block in split_blocks:
             block = self.__xor_bytes(plaintext_block,
                                      self.__encrypt_block(nonce))
-            cryptogram_blocks.append(block)
+            blocks.append(block)
             nonce = self.__inc_bytes(nonce)
 
-        return b''.join(cryptogram_blocks)
+        return b''.join(blocks)
 
     def decrypt(self, ciphertext):
         """
         """
+        blocks = []
         nonce = self.iv
-        blocks = self.__split_blocks(ciphertext, require_padding=False)
-        plaintext_blocks = []
+        split_blocks = self.__split_blocks(ciphertext, require_padding=False)
 
-        for ciphertext_block in blocks:
+        for ciphertext_block in split_blocks:
             block = self.__xor_bytes(ciphertext_block,
                                      self.__decrypt_block(nonce))
-            plaintext_blocks.append(block)
+            blocks.append(block)
             nonce = self.__inc_bytes(nonce)
 
-        return b''.join(plaintext_blocks)
+        return b''.join(blocks)
 
     def __expand_key(self, key):
 
