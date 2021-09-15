@@ -59,27 +59,25 @@ round_column = (
 
 def x_times(a):
     """
-
+    Multiply the given polinomial a, x times.
     """
     return (((a << 1) ^ 0x1B) & 0xFF) if (a & 0x80) else (a << 1)
 
 
-def sub_bytes(s):
+def sub_bytes(state, box=rijndael_box):
     """
-    Substitution of bytes in state s with sbox
-    """
-    for i in range(4):
-        for j in range(4):
-            s[i][j] = rijndael_box[s[i][j]]
-
-
-def inv_sub_bytes(s):
-    """
-    Inverse substitution of bytes in state s with sbox
+    Substitution of bytes in state with the defined box.
     """
     for i in range(4):
         for j in range(4):
-            s[i][j] = rijndael_box_inv[s[i][j]]
+            state[i][j] = box[state[i][j]]
+
+
+def inv_sub_bytes(state):
+    """
+    Inverse substitution of bytes in state with the inverse box of rijndael.
+    """
+    sub_bytes(state, rijndael_box_inv)
 
 
 def shift_rows(s):
