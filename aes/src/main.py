@@ -1,5 +1,6 @@
 import os
 import math
+import hashlib
 import argparse
 
 from aes import ecb, ctr
@@ -15,6 +16,8 @@ def create_parser():
                    default=16, type=int, required=False)
     p.add_argument('-m', '--modes', help='AES modes of operation',
                    default='ecb', choices=['ecb', 'ctr'], required=False)
+    p.add_argument('-c', '--cycles', help='number of encryption cycles',
+                   default=5, type=int, required=False)
 
     return p
 
@@ -38,9 +41,9 @@ def main():
     key_size = len(parser.key)
     data_block_size = math.ceil(len(data) / parser.block_size)
 
+    print('key with {} bytes'.format(key_size))
     print('image with {} bytes, creating {} blocks'.format(len(data),
           data_block_size))
-    print('key with {} bytes, filling with zeros'.format(key_size))
 
     key_block = bytes(parser.key, 'utf-8')
 
@@ -54,27 +57,33 @@ def main():
         quantity = parser.block_size - (len(data) % parser.block_size)
         data += b'\x00' * quantity
 
-    if parser.modes == 'ecb':
-        alg = ecb.ECB(key_block)
+    cryptogram = ""
+    file_extension = os.path.splitext(parser.input)[1]
+    alg = ecb.ECB(key_block) if parser.modes == 'ecb' else ctr.CTR(key_block, os.urandom(16))
 
-        cryptogram = alg.encrypt(data)
+    hashes = []
+    hasher = hashlib.sha256()
 
-        with open(parser.output, 'wb') as f:
-            f.write(cryptogram)
+    for i in range(parser.cycles):
+        if i == 0:
+            cryptogram = alg.encrypt(data)
+        else:
+            cryptogram = alg.encrypt(cryptogram)
 
-        with open(parser.output+".png", 'wb') as f:
+        hasher.update(cryptogram)
+        hashes.append(hasher.hexdigest())
+
+        # write the cryptogram to a file along with its decrypted counterpart.
+        with open(parser.output+str(i), 'wb') as f:
+                f.write(cryptogram)
+
+        with open(parser.output+str(i)+file_extension, 'wb') as f:
             f.write(alg.decrypt(cryptogram))
 
-    elif parser.modes == 'ctr':
-        alg = ctr.CTR(key_block, os.urandom(128))
-
-        cryptogram = alg.encrypt(key_block)
-
-        with open(parser.output, 'wb') as f:
-            f.write(cryptogram)
-
-        with open(parser.output+".png", 'wb') as f:
-            f.write(alg.decrypt(cryptogram))
+    # write hashes of the cryptogram to a file
+    with open(parser.output+'_hashes.txt', 'w') as f:
+        for h in hashes:
+            f.write('- '+h+'\n')
 
 
 if __name__ == "__main__":
