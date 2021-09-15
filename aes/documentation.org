@@ -21,6 +21,8 @@ utiliza uma rede Feistel e é rápido tanto em hardware quanto em software.
 
 O AES
 
+
+
 *** ECB
 
 Esse é o modo mais simples do AES. Basicamente, o /plaintext/ é dividido em
@@ -55,9 +57,13 @@ a única dependência necessária (Crypto) através do pip com o seguinte comand
 $ pip install -r requirements.txt
 #+END_SRC
 
-Após instalar a dependência, execute o script ~src/(ctr|ecb)_test.py~. O CTR vai
-falhar de imediato pois a implementação do CTR na biblioteca Crypto é diferente
-da realizada por nós.
+Após instalar a dependência, execute o script ~src/(ctr|ecb)_test.py~. O CTR e o
+ECB vão falhar de imediato pois a implementação desses na biblioteca Crypto é
+diferente da realizada por nós. Isso porquê existem algumas diferenças nas APIs
+de construção da cifra.
+
+A título de exemplo o algoritmo de CTR é inicializado, com a biblioteca Crypto,
+utilizando uma função interna de contagem.
 
 ** Execução e testes do programa
 
