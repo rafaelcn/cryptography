@@ -12,3 +12,16 @@
 *.dec*.bmp
 *.dec*.jpg
 *hashes.txt
+
+#
+# compressed files
+#
+*.zip
+*.rar
+*.tar
+*.gz
+*.tgz
+*.bz2
+*.tbz
+*.tbz2
+*.txz
