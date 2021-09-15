@@ -3,7 +3,9 @@ import math
 import hashlib
 import argparse
 
-from aes import ecb, ctr
+from PIL import Image
+
+from aes import ecb, ctr_1
 
 
 def create_parser():
@@ -17,7 +19,13 @@ def create_parser():
     p.add_argument('-m', '--modes', help='AES modes of operation',
                    default='ecb', choices=['ecb', 'ctr'], required=False)
     p.add_argument('-c', '--cycles', help='number of encryption cycles',
-                   default=5, type=int, required=False)
+                   default=1, type=int, required=False)
+    p.add_argument('-r', '--rounds', help='number of encryption rounds ' +
+                   '(depends on block size)', default=10, type=int,
+                   required=False)
+    p.add_argument('-v', '--initialization-vector', help='initialization ' +
+                   'vector of the CTR mode (default os.urandom(16))',
+                   default=os.urandom(16), type=bytes)
 
     return p
 
@@ -30,19 +38,24 @@ def main():
         parser.output = parser.input + '.enc'
 
     data = ""
+    image = None
 
-    print("{}".format(parser.block_size))
-    print("{}".format(parser.modes))
-    print("{}".format(parser.input))
+    print("block size: {}".format(parser.block_size))
+    print("operation mode: {}".format(parser.modes))
+    print("input file: {}".format(parser.input))
 
-    with open(parser.input, 'rb') as f:
-        data = f.read()
+    #with open(parser.input, 'rb') as f:
+    #    data = f.read()
+
+    with Image.open(parser.input) as im:
+        image = im
+        data = im.tobytes()
 
     key_size = len(parser.key)
     data_block_size = math.ceil(len(data) / parser.block_size)
 
-    print('key with {} bytes'.format(key_size))
-    print('image with {} bytes, creating {} blocks'.format(len(data),
+    print('key size {} bytes'.format(key_size))
+    print('image size {} bytes, creating {} blocks'.format(len(data),
           data_block_size))
 
     key_block = bytes(parser.key, 'utf-8')
@@ -50,41 +63,57 @@ def main():
     # fill the key with zeros
     if key_size < parser.block_size:
         quantity = parser.block_size - key_size
-        key_block += b'\x00' * quantity
+        key_block += b'~' * quantity
 
     # fill the data with zeros if it's not a multiple of the block size
     if len(data) % parser.block_size != 0:
         quantity = parser.block_size - (len(data) % parser.block_size)
-        data += b'\x00' * quantity
+        data += b'~' * quantity
 
-    cryptogram = ""
+    cryptograms = []
     file_extension = os.path.splitext(parser.input)[1]
-    alg = ecb.ECB(key_block) if parser.modes == 'ecb' else ctr.CTR(key_block, os.urandom(16))
+
+    # if the initialization vector is random, the output for the same image
+    # might change as a result of that.
+    alg = None
+
+    if parser.modes == 'ecb':
+        alg = ecb.ECB(key_block, parser.rounds)
+    else:
+        alg = ctr_1.CTR(key_block, parser.initialization_vector, parser.rounds)
 
     hashes = []
-    hasher = hashlib.sha256()
 
     for i in range(parser.cycles):
         if i == 0:
-            cryptogram = alg.encrypt(data)
+            cryptograms.append(alg.encrypt(data))
         else:
-            cryptogram = alg.encrypt(cryptogram)
+            cryptograms.append(alg.encrypt(cryptograms[i-1]))
 
-        hasher.update(cryptogram)
+        # initialize hashlib at each cycle to prevent shadowing.
+        hasher = hashlib.sha256()
+        hasher.update(cryptograms[i])
+
         hashes.append(hasher.hexdigest())
 
-        # write the cryptogram to a file along with its decrypted counterpart.
-        with open(parser.output+str(i), 'wb') as f:
-                f.write(cryptogram)
+        #print(len(data), len(cryptograms[i]))
+        #im = Image.frombytes("RGB", [400, 400], cryptograms[i])
+        #im.show()
 
-        with open(parser.output+str(i)+file_extension, 'wb') as f:
-            f.write(alg.decrypt(cryptogram))
+        with open(parser.output+"-"+str(i), 'wb') as f:
+                f.write(cryptograms[i])
+
+
+        im = Image.frombytes("RGB", [400, 400], alg.decrypt(cryptograms[i]))
+        #f.write(alg.decrypt(cryptograms[i]))
+        im.save(parser.input+".dec-"+str(i)+file_extension)
 
     # write hashes of the cryptogram to a file
-    with open(parser.output+'_hashes.txt', 'w') as f:
+    with open(parser.input+'_hashes.txt', 'w') as f:
         for h in hashes:
             f.write('- '+h+'\n')
 
+    image.close()
 
 if __name__ == "__main__":
     main()
