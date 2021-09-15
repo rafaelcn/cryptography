@@ -76,6 +76,10 @@ diz respeito ao número de ciclos de cifração e decifração que será aplicad
 arquivo e o segundo é o número de rodadas que o algoritmo irá executar para
 cifrar o arquivo.
 
+Por fim, a execução do programa resulta em arquivos com sufixos *dec* ou *enc*,
+juntamente ao índice do ciclo do algoritmo.
+
+
 * Footnotes
 
 [fn:1] Composição de nome para os dois autores originais Vincent Rijmen e Joan Daemen
