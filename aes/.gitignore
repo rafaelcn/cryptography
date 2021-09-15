@@ -5,7 +5,8 @@
 *.pyo
 
 #
-# encrypted files
+# encrypted files and hashes
 #
 *.enc*
 *.dec*.png
+*hashes.txt
