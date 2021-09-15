@@ -10,6 +10,9 @@ from aes import ecb, ctr
 
 
 def create_parser():
+    """
+    Creates a parser with the given arguments.
+    """
     p = argparse.ArgumentParser(description='AES')
 
     p.add_argument('-k', '--key', help='key', required=True)
@@ -37,7 +40,7 @@ def main():
     parser = create_parser().parse_args()
 
     if parser.output is None:
-        parser.output = parser.input + '.enc'
+        parser.output = os.path.splitext(parser.input)[0] + '.enc'
 
     print("block size: {}".format(parser.block_size))
     print("operation mode: {}".format(parser.modes))
@@ -55,12 +58,13 @@ def main():
 
     key_block = bytes(parser.key, 'utf-8')
 
-    # add
+    # fill the key block with ~ if it is not long enough, respective to the
+    # block size.
     if key_size < parser.block_size:
         quantity = parser.block_size - key_size
         key_block += b'~' * quantity
 
-    # fill the data with zeros if it's not a multiple of the block size
+    # fill the data with ~ if it's not a multiple of the block size
     if image.size % parser.block_size != 0:
         quantity = parser.block_size - (image.size % parser.block_size)
         image.body += b'~' * quantity
@@ -68,13 +72,13 @@ def main():
     cryptograms = []
     file_extension = os.path.splitext(parser.input)[1]
 
-    # if the initialization vector is random, the output for the same image
-    # might change as a result of that.
     alg = None
 
     if parser.modes == 'ecb':
         alg = ecb.ECB(key_block, parser.rounds)
     else:
+        # if the initialization vector is random, the output for the same image
+        # might change as a result of that.
         alg = ctr.CTR(key_block, parser.initialization_vector, parser.rounds)
 
     hashes = []
