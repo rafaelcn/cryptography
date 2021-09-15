@@ -37,6 +37,7 @@ descriptografar em paralelo.
 
 * Arquitetura do Projeto
 
+
 * Limitações
 
 
