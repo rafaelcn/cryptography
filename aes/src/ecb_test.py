@@ -27,14 +27,18 @@ class TestECBAlgorithm(unittest.TestCase):
                 h2 = hashlib.sha256()
                 h2.update(c2)
 
-                # self.assertEqual(h1.hexdigest(), h2.hexdigest())
+                self.assertEqual(h1.hexdigest(), h2.hexdigest())
 
     def test_enc_crypto(self):
+        """
+        Test made to output the correct encrypted version of a given image.
+        """
         key = b'somethingwith323'
         cipher = AES.new(key, AES.MODE_ECB)
+        filepath = '../assets/self.bmp'
 
         image = StrippedImage(os.path.join(os.path.dirname(__file__),
-                              '../assets/huge.bmp'))
+                              filepath))
 
         if image.size % 16 != 0:
             quantity = 16 - (image.size % 16)
