@@ -103,7 +103,6 @@ def main():
         with open(parser.output+"-"+str(i), 'wb') as f:
                 f.write(cryptograms[i])
 
-
         im = Image.frombytes("RGB", [400, 400], alg.decrypt(cryptograms[i]))
         #f.write(alg.decrypt(cryptograms[i]))
         im.save(parser.input+".dec-"+str(i)+file_extension)

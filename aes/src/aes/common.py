@@ -1,7 +1,8 @@
 """
+This file contains the AES common functions, tables and whatnot.
 """
 
-__rijndael_block = [
+rijndael_box = [
     0x63, 0x7C, 0x77, 0x7B, 0xF2, 0x6B, 0x6F, 0xC5, 0x30, 0x01, 0x67, 0x2B,
     0xFE, 0xD7, 0xAB, 0x76, 0xCA, 0x82, 0xC9, 0x7D, 0xFA, 0x59, 0x47, 0xF0,
     0xAD, 0xD4, 0xA2, 0xAF, 0x9C, 0xA4, 0x72, 0xC0, 0xB7, 0xFD, 0x93, 0x26,
@@ -26,7 +27,7 @@ __rijndael_block = [
     0xB0, 0x54, 0xBB, 0x16,
 ]
 
-__rijndael_block_inv = [
+rijndael_box_inv = [
     0x52, 0x09, 0x6a, 0xd5, 0x30, 0x36, 0xa5, 0x38, 0xbf, 0x40, 0xa3, 0x9e,
     0x81, 0xf3, 0xd7, 0xfb, 0x7c, 0xe3, 0x39, 0x82, 0x9b, 0x2f, 0xff, 0x87,
     0x34, 0x8e, 0x43, 0x44, 0xc4, 0xde, 0xe9, 0xcb, 0x54, 0x7b, 0x94, 0x32,
@@ -48,9 +49,100 @@ __rijndael_block_inv = [
     0x55, 0x21, 0x0c, 0x7d
 ]
 
-__round_column = (
+round_column = (
     0x00, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40,
     0x80, 0x1B, 0x36, 0x6C, 0xD8, 0xAB, 0x4D, 0x9A,
     0x2F, 0x5E, 0xBC, 0x63, 0xC6, 0x97, 0x35, 0x6A,
     0xD4, 0xB3, 0x7D, 0xFA, 0xEF, 0xC5, 0x91, 0x39,
 )
+
+
+def x_times(a):
+    """
+
+    """
+    return (((a << 1) ^ 0x1B) & 0xFF) if (a & 0x80) else (a << 1)
+
+
+def sub_bytes(s):
+    """
+    Substitution of bytes in state s with sbox
+    """
+    for i in range(4):
+        for j in range(4):
+            s[i][j] = rijndael_box[s[i][j]]
+
+
+def inv_sub_bytes(s):
+    """
+    Inverse substitution of bytes in state s with sbox
+    """
+    for i in range(4):
+        for j in range(4):
+            s[i][j] = rijndael_box_inv[s[i][j]]
+
+
+def shift_rows(s):
+    s[0][1], s[1][1], s[2][1], s[3][1] = s[1][1], s[2][1], s[3][1], s[0][1]
+    s[0][2], s[1][2], s[2][2], s[3][2] = s[2][2], s[3][2], s[0][2], s[1][2]
+    s[0][3], s[1][3], s[2][3], s[3][3] = s[3][3], s[0][3], s[1][3], s[2][3]
+
+
+def inv_shift_rows(s):
+    s[0][1], s[1][1], s[2][1], s[3][1] = s[3][1], s[0][1], s[1][1], s[2][1]
+    s[0][2], s[1][2], s[2][2], s[3][2] = s[2][2], s[3][2], s[0][2], s[1][2]
+    s[0][3], s[1][3], s[2][3], s[3][3] = s[1][3], s[2][3], s[3][3], s[0][3]
+
+
+def add_round_key(s, k):
+    """
+    """
+    for i in range(4):
+        for j in range(4):
+            s[i][j] ^= k[i][j]
+
+
+def mix_single_column(a):
+    """
+    """
+    t = a[0] ^ a[1] ^ a[2] ^ a[3]
+    u = a[0]
+    a[0] ^= t ^ x_times(a[0] ^ a[1])
+    a[1] ^= t ^ x_times(a[1] ^ a[2])
+    a[2] ^= t ^ x_times(a[2] ^ a[3])
+    a[3] ^= t ^ x_times(a[3] ^ u)
+
+
+def mix_columns(s):
+    """
+    """
+    for i in range(4):
+        mix_single_column(s[i])
+
+
+def inv_mix_columns(s):
+    """
+    """
+    for i in range(4):
+        u = x_times(x_times(s[i][0] ^ s[i][2]))
+        v = x_times(x_times(s[i][1] ^ s[i][3]))
+        s[i][0] ^= u
+        s[i][1] ^= v
+        s[i][2] ^= u
+        s[i][3] ^= v
+
+    mix_columns(s)
+
+
+def bytes2matrix(text):
+    """
+    Converts bytes to a 4x4 matrix
+    """
+    return [list(text[i:i+4]) for i in range(0, len(text), 4)]
+
+
+def matrix2bytes(matrix):
+    """
+    Converts a 4x4 matrix to bytes
+    """
+    return bytes(sum(matrix, []))
