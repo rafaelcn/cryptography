@@ -2,7 +2,14 @@ from . import common
 
 
 class CTR:
-    def __init__(self, master_key, iv, rounds=10):
+    """CTR is an abstraction over the Integer Counter mode of operation.
+
+    - `iv`: is the initialization vector.
+    - `key`: a byte string of length 16 (it must match the block size).
+    - `rounds`: number of rounds to be executed within the algorithm
+    - `bs`: block size in bytes.
+    """
+    def __init__(self, master_key, iv, rounds=10, bs=16):
         self.iv = iv
         self.rounds = rounds
         self._key_matrices = self.__expand_key(master_key)
@@ -11,6 +18,10 @@ class CTR:
         return bytes(i ^ j for i, j in zip(a, b))
 
     def __inc_bytes(self, a):
+        """
+        This act on the nonce specifically in order to add a counter behaviour
+        to it
+        """
         out = list(a)
         for i in reversed(range(len(out))):
             if out[i] == 0xFF:
@@ -50,7 +61,9 @@ class CTR:
         return g
 
     def encrypt(self, plaintext):
-
+        """
+        Encrypts a plaintext using the given key.
+        """
         blocks = []
         nonce = self.iv
 
@@ -64,7 +77,9 @@ class CTR:
         return b''.join(blocks)
 
     def decrypt(self, ciphertext):
-
+        """
+        Decrypts a plaintext using the given key.
+        """
         blocks = []
         nonce = self.iv
 

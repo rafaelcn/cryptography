@@ -4,6 +4,9 @@ from . import common
 class ECB:
     """ECB is an abstraction over the Electronic Code Book mode of operation.
 
+    - `key`: a byte string of length 16 (it must match the block size).
+    - `rounds`: number of rounds to be executed within the algorithm
+    - `bs`: block size in bytes.
     """
     def __init__(self, key, rounds=10, bs=16):
         self.rounds = rounds
