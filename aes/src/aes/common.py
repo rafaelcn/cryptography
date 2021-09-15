@@ -84,12 +84,16 @@ def inv_sub_bytes(state):
 
 
 def shift_rows(s):
+    """
+    """
     s[0][1], s[1][1], s[2][1], s[3][1] = s[1][1], s[2][1], s[3][1], s[0][1]
     s[0][2], s[1][2], s[2][2], s[3][2] = s[2][2], s[3][2], s[0][2], s[1][2]
     s[0][3], s[1][3], s[2][3], s[3][3] = s[3][3], s[0][3], s[1][3], s[2][3]
 
 
 def inv_shift_rows(s):
+    """
+    """
     s[0][1], s[1][1], s[2][1], s[3][1] = s[3][1], s[0][1], s[1][1], s[2][1]
     s[0][2], s[1][2], s[2][2], s[3][2] = s[2][2], s[3][2], s[0][2], s[1][2]
     s[0][3], s[1][3], s[2][3], s[3][3] = s[1][3], s[2][3], s[3][3], s[0][3]
@@ -148,3 +152,43 @@ def matrix2bytes(matrix):
     Converts a 4x4 matrix to bytes
     """
     return bytes(sum(matrix, []))
+
+
+def split_blocks(message, block_size=16):
+        return [message[i:i+16] for i in range(0, len(message), block_size)]
+
+
+def encrypt_block(plaintext, rounds, key_matrices):
+    plain_state = bytes2matrix(plaintext)
+
+    add_round_key(plain_state, key_matrices[0])
+
+    for i in range(1, rounds):
+        sub_bytes(plain_state)
+        shift_rows(plain_state)
+        mix_columns(plain_state)
+        add_round_key(plain_state, key_matrices[i])
+
+    sub_bytes(plain_state)
+    shift_rows(plain_state)
+    add_round_key(plain_state, key_matrices[-1])
+
+    return matrix2bytes(plain_state)
+
+
+def decrypt_block(ciphertext, rounds, key_matrices):
+    cipher_state = bytes2matrix(ciphertext)
+
+    add_round_key(cipher_state, key_matrices[-1])
+    inv_shift_rows(cipher_state)
+    inv_sub_bytes(cipher_state)
+
+    for i in range(rounds - 1, 0, -1):
+        add_round_key(cipher_state, key_matrices[i])
+        inv_mix_columns(cipher_state)
+        inv_shift_rows(cipher_state)
+        inv_sub_bytes(cipher_state)
+
+    add_round_key(cipher_state, key_matrices[0])
+
+    return matrix2bytes(cipher_state)

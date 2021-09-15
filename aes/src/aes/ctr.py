@@ -20,9 +20,6 @@ class CTR:
                 break
         return bytes(out)
 
-    def __split_blocks(self, message, block_size=16):
-        return [message[i:i+16] for i in range(0, len(message), block_size)]
-
     def __expand_key(self, master_key):
 
         # Initialize round keys with raw key material.
@@ -52,48 +49,15 @@ class CTR:
         g = [key_columns[4*i: 4*(i+1)] for i in range(len(key_columns) // 4)]
         return g
 
-    def encrypt_block(self, plaintext):
-
-        plain_state = common.bytes2matrix(plaintext)
-
-        common.add_round_key(plain_state, self._key_matrices[0])
-
-        for i in range(1, self.rounds):
-            common.sub_bytes(plain_state)
-            common.shift_rows(plain_state)
-            common.mix_columns(plain_state)
-            common.add_round_key(plain_state, self._key_matrices[i])
-
-        common.sub_bytes(plain_state)
-        common.shift_rows(plain_state)
-        common.add_round_key(plain_state, self._key_matrices[-1])
-
-        return common.matrix2bytes(plain_state)
-
-    def decrypt_block(self, ciphertext):
-        cipher_state = common.bytes2matrix(ciphertext)
-
-        common.add_round_key(cipher_state, self._key_matrices[-1])
-        common.inv_shift_rows(cipher_state)
-        common.inv_sub_bytes(cipher_state)
-
-        for i in range(self.rounds - 1, 0, -1):
-            common.add_round_key(cipher_state, self._key_matrices[i])
-            common.inv_mix_columns(cipher_state)
-            common.inv_shift_rows(cipher_state)
-            common.inv_sub_bytes(cipher_state)
-
-        common.add_round_key(cipher_state, self._key_matrices[0])
-
-        return common.matrix2bytes(cipher_state)
-
     def encrypt(self, plaintext):
+
         blocks = []
         nonce = self.iv
 
-        for plaintext_block in self.__split_blocks(plaintext):
+        for plaintext_block in common.split_blocks(plaintext):
             block = self.__xor_bytes(plaintext_block,
-                                     self.encrypt_block(nonce))
+                                     common.encrypt_block(nonce, self.rounds,
+                                                          self._key_matrices))
             blocks.append(block)
             nonce = self.__inc_bytes(nonce)
 
@@ -104,9 +68,10 @@ class CTR:
         blocks = []
         nonce = self.iv
 
-        for ciphertext_block in self.__split_blocks(ciphertext):
+        for ciphertext_block in common.split_blocks(ciphertext):
             block = self.__xor_bytes(ciphertext_block,
-                                     self.encrypt_block(nonce))
+                                     common.decrypt_block(nonce, self.rounds,
+                                                          self._key_matrices))
             blocks.append(block)
             nonce = self.__inc_bytes(nonce)
 

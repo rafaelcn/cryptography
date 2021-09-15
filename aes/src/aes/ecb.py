@@ -2,8 +2,12 @@ from . import common
 
 
 class ECB:
-    def __init__(self, key, rounds=10):
+    """ECB is an abstraction over the Electronic Code Book mode of operation.
+
+    """
+    def __init__(self, key, rounds=10, bs=16):
         self.rounds = rounds
+        self.block_size = bs
         self._key_matrices = self.__expand_key(key)
 
     def __expand_key(self, key):
@@ -13,7 +17,7 @@ class ECB:
         key_columns = common.bytes2matrix(key)
         iteration_size = len(key) // 4
 
-        # cach iteration has exactly as many columns as the key material.
+        # cache iteration has exactly as many columns as the key material.
         i = 1
         while len(key_columns) < (self.rounds + 1) * 4:
             # copy previous word.
@@ -36,44 +40,30 @@ class ECB:
         """
         Encrypt a plaintext with the given key.
         """
-        if len(plaintext) <= 0 or len(plaintext) % 16 != 0:
-            raise ValueError('plaintext must be a multiple of 16 bytes')
+        if len(plaintext) <= 0:
+            return b''
 
-        cryptogram = common.bytes2matrix(plaintext)
+        blocks = []
 
-        common.add_round_key(cryptogram, self._key_matrices[0])
+        for plaintext_block in common.split_blocks(plaintext):
+            block = common.encrypt_block(plaintext_block, self.rounds,
+                                         self._key_matrices)
+            blocks.append(block)
 
-        for i in range(1, self.rounds):
-            common.sub_bytes(cryptogram)
-            common.shift_rows(cryptogram)
-            common.mix_columns(cryptogram)
-            common.add_round_key(cryptogram, self._key_matrices[i])
-
-        common.sub_bytes(cryptogram)
-        common.shift_rows(cryptogram)
-        common.add_round_key(cryptogram, self._key_matrices[-1])
-
-        return common.matrix2bytes(cryptogram)
+        return b''.join(blocks)
 
     def decrypt(self, cryptogram):
         """
         Decrypt a cryptogram with the given key.
         """
-        if len(cryptogram) <= 0 or len(cryptogram) % 16 != 0:
-            raise ValueError('plaintext must be a multiple of 16 bytes')
+        if len(cryptogram) <= 0:
+            return b''
 
-        plaintext = common.bytes2matrix(cryptogram)
+        blocks = []
 
-        common.add_round_key(plaintext, self._key_matrices[-1])
-        common.inv_shift_rows(plaintext)
-        common.inv_sub_bytes(plaintext)
+        for cryptogram_block in common.split_blocks(cryptogram):
+            block = common.decrypt_block(cryptogram_block, self.rounds,
+                                         self._key_matrices)
+            blocks.append(block)
 
-        for i in range(self.rounds - 1, 0, -1):
-            common.add_round_key(plaintext, self._key_matrices[i])
-            common.inv_mix_columns(plaintext)
-            common.inv_shift_rows(plaintext)
-            common.inv_sub_bytes(plaintext)
-
-        common.add_round_key(plaintext, self._key_matrices[0])
-
-        return common.matrix2bytes(plaintext)
+        return b''.join(blocks)

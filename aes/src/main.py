@@ -54,7 +54,7 @@ def main():
 
     key_block = bytes(parser.key, 'utf-8')
 
-    # fill the key with zeros
+    # add
     if key_size < parser.block_size:
         quantity = parser.block_size - key_size
         key_block += b'~' * quantity
@@ -93,13 +93,15 @@ def main():
         encrypted_image = Image.frombytes("RGB",
                                           image.resolution,
                                           image.header+cryptograms[i])
-        encrypted_image.save(parser.output+"-"+str(i)+file_extension)
+        encrypted_image.save(parser.output+"-"+str(i)+"."+str(parser.modes) +
+                             file_extension)
 
         log("encrypted image {} was created".format(i), parser.verbose)
 
         decrypted_image = Image.frombytes("RGB", image.resolution,
                                           image.header+alg.decrypt(cryptograms[i]))
-        decrypted_image.save(parser.input+".dec-"+str(i)+file_extension)
+        decrypted_image.save(parser.input+".dec-"+str(i)+"." +
+                             str(parser.modes)+file_extension)
 
         log("decrypted image {} was created".format(i), parser.verbose)
 
