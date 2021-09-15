@@ -96,15 +96,10 @@ def main():
 
         hashes.append(hasher.hexdigest())
 
-        #print(len(data), len(cryptograms[i]))
-        #im = Image.frombytes("RGB", [400, 400], cryptograms[i])
-        #im.show()
-
         with open(parser.output+"-"+str(i), 'wb') as f:
                 f.write(cryptograms[i])
 
-        im = Image.frombytes("RGB", [400, 400], alg.decrypt(cryptograms[i]))
-        #f.write(alg.decrypt(cryptograms[i]))
+        im = Image.frombytes("RGB", image.size, alg.decrypt(cryptograms[i]))
         im.save(parser.input+".dec-"+str(i)+file_extension)
 
     # write hashes of the cryptogram to a file
@@ -113,6 +108,7 @@ def main():
             f.write('- '+h+'\n')
 
     image.close()
+
 
 if __name__ == "__main__":
     main()
