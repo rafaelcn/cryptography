@@ -9,4 +9,6 @@
 #
 *.enc*
 *.dec*.png
+*.dec*.bmp
+*.dec*.jpg
 *hashes.txt

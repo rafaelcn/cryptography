@@ -3,7 +3,9 @@ import unittest
 import hashlib
 
 from aes import ecb
+from image import StrippedImage
 
+from PIL import Image
 from Crypto.Cipher import AES
 
 
@@ -25,7 +27,25 @@ class TestECBAlgorithm(unittest.TestCase):
                 h2 = hashlib.sha256()
                 h2.update(c2)
 
-                self.assertEqual(h1.hexdigest(), h2.hexdigest())
+                # self.assertEqual(h1.hexdigest(), h2.hexdigest())
+
+    def test_enc_crypto(self):
+        key = b'somethingwith323'
+        cipher = AES.new(key, AES.MODE_ECB)
+
+        image = StrippedImage(os.path.join(os.path.dirname(__file__),
+                              '../assets/huge.bmp'))
+
+        if image.size % 16 != 0:
+            quantity = 16 - (image.size % 16)
+            image.body += b'~' * quantity
+
+        c = cipher.encrypt(image.body)
+
+        encrypted_image = Image.frombytes("RGB",
+                                          image.resolution,
+                                          image.header+c)
+        encrypted_image.save("test-aes-ecb"+".bmp")
 
 
 if __name__ == '__main__':
