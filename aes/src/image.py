@@ -1,7 +1,21 @@
 from PIL import Image
 
 
-class EImage:
+class StrippedImage:
+    """StrippedImage represents a image with all of its data stripped out.
+
+    This is quite useful in our context, but it only works with bitmap (.bmp)
+    images with a header of 54 bytes. There is some properties of the picture in
+    this class, better described as:
+
+    - `width`: the width of the image
+    - `height`: the height of the image
+    - `resolution`: the resolution of the image (width, height)
+    - `body`: the body of the image, without the header
+    - `size`: the size of the image, specifically, the size of the body of the
+      image
+    - `path`: the path of the image
+    """
     def __init__(self, path):
         self.path = path
         self.header = b''

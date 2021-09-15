@@ -5,7 +5,7 @@ import argparse
 
 from PIL import Image
 
-from image import EImage
+from image import StrippedImage
 from aes import ecb, ctr
 
 
@@ -43,7 +43,7 @@ def main():
     print("operation mode: {}".format(parser.modes))
     print("input file: {}".format(parser.input))
 
-    image = EImage(parser.input)
+    image = StrippedImage(parser.input)
 
     key_size = len(parser.key)
     data_block_size = math.ceil(image.size / parser.block_size)
