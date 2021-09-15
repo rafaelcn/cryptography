@@ -43,6 +43,7 @@ def main():
     print("operation mode: {}".format(parser.modes))
     print("input file: {}".format(parser.input))
 
+    # read the input file (a bitmap image)
     image = StrippedImage(parser.input)
 
     key_size = len(parser.key)
