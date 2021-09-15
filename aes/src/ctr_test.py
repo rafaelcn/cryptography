@@ -8,7 +8,7 @@ from Crypto.Cipher import AES
 from Crypto.Util import Counter
 
 
-class TestECBAlgorithm(unittest.TestCase):
+class TestCTRAlgorithm(unittest.TestCase):
     def test_enc(self):
         keys = [b'somethingwith323']
         data = [os.urandom(16*(2**i)) for i in range(1, 8)]
