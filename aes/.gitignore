@@ -8,3 +8,4 @@
 # encrypted files
 #
 *.enc*
+*.dec*.png
