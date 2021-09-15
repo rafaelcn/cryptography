@@ -1,4 +1,3 @@
-
 """
 """
 
@@ -69,32 +68,32 @@ class CTR:
     def encrypt(self, plaintext):
         """
         """
-        blocks = []
         nonce = self.iv
         blocks = self.__split_blocks(plaintext, require_padding=False)
+        cryptogram_blocks = []
 
         for plaintext_block in blocks:
             block = self.__xor_bytes(plaintext_block,
                                      self.__encrypt_block(nonce))
-            blocks.append(block)
+            cryptogram_blocks.append(block)
             nonce = self.__inc_bytes(nonce)
 
-        return b''.join(blocks)
+        return b''.join(cryptogram_blocks)
 
     def decrypt(self, ciphertext):
         """
         """
-        blocks = []
         nonce = self.iv
         blocks = self.__split_blocks(ciphertext, require_padding=False)
+        plaintext_blocks = []
 
         for ciphertext_block in blocks:
             block = self.__xor_bytes(ciphertext_block,
                                      self.__decrypt_block(nonce))
-            blocks.append(block)
+            plaintext_blocks.append(block)
             nonce = self.__inc_bytes(nonce)
 
-        return b''.join(blocks)
+        return b''.join(plaintext_blocks)
 
     def __expand_key(self, key):
 
