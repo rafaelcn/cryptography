@@ -26,6 +26,7 @@ def create_parser():
     p.add_argument('-v', '--initialization-vector', help='initialization ' +
                    'vector of the CTR mode (default os.urandom(16))',
                    default=os.urandom(16), type=bytes)
+    p.add_argument('-vvv', '--verbose', help='verbose mode', default=False)
 
     return p
 
@@ -96,11 +97,16 @@ def main():
 
         hashes.append(hasher.hexdigest())
 
-        with open(parser.output+"-"+str(i), 'wb') as f:
-                f.write(cryptograms[i])
+        encrypted_image = Image.frombytes("RGB", image.size, cryptograms[i])
+        encrypted_image.save(parser.output+"-"+str(i)+file_extension)
 
-        im = Image.frombytes("RGB", image.size, alg.decrypt(cryptograms[i]))
-        im.save(parser.input+".dec-"+str(i)+file_extension)
+        log("encrypted image {} was created".format(i), parser.verbose)
+
+        decrypted_image = Image.frombytes("RGB", image.size,
+                                          alg.decrypt(cryptograms[i]))
+        decrypted_image.save(parser.input+".dec-"+str(i)+file_extension)
+
+        log("decrypted image {} was created".format(i), parser.verbose)
 
     # write hashes of the cryptogram to a file
     with open(parser.input+'_hashes.txt', 'w') as f:
@@ -108,6 +114,11 @@ def main():
             f.write('- '+h+'\n')
 
     image.close()
+
+
+def log(message: str, verbose: bool = False):
+    if verbose:
+        print(message)
 
 
 if __name__ == "__main__":
