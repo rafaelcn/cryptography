@@ -1,4 +1,4 @@
-% Created 2021-09-14 ter 21:55
+% Created 2021-09-15 qua 22:07
 % Intended LaTeX compiler: pdflatex
 \documentclass[11pt]{article}
 \usepackage[utf8]{inputenc}
@@ -29,7 +29,7 @@
  pdfkeywords={},
  pdfsubject={},
  pdfcreator={Emacs 26.3 (Org mode 9.1.9)},
- pdflang={English}}
+ pdflang={Pt_br}}
 \begin{document}
 
 \maketitle
@@ -37,24 +37,274 @@
 
 \(\newpage\)
 
-\section{Introdução}
-\label{sec:orga5de80d}
-
 \section{O AES}
-\label{sec:org8cb36e1}
+\label{sec:orga84807d}
 
-O algoritmo AES é uma evolução do DES - sendo este utilizador de estruturas de
-Feistel -.
+O algoritmo AES (Advanced Encryption Standard) é uma especificação de
+criptografia criado por Rijndael\footnote{Composição de nome para os dois autores originais Vincent Rijmen e Joan Daemen}, sendo uma cifra de bloco de chave
+simétrica. Este algoritmo, ao contrário do DES (Data Encryption Standard), não
+utiliza uma rede Feistel e é rápido tanto em hardware quanto em software.
 
+A ideia geral do algoritmo é separar a mensagem em blocos e cifrá-las
+individualmente. A depender do modo utilizado para cifragem dos blocos
+algumas particularidades são adicionadas aos blocos. É importante ressaltar
+que esses blocos podem ter tamanhos variados de 128, 192, 256 bits.
+
+A cifragem em blocos do AES implica em uma característica interessante sobre
+a execução do algoritmo, ele pode ser paralelizado ou executado em concorrência
+já que, em alguns modos, cada bloco é cifrado independentemente do outro.
+
+
+\subsection{O modo ECB}
+\label{sec:org5c67b94}
+
+Esse é o modo mais simples do AES. Basicamente, o \emph{plaintext} é dividido em
+blocos, e no caso da implementação do trabalho, ele tem comprimento de 128 bits.
+E a cada rodada da criptografia, os dados são preenchidos até que fiquem com o
+mesmo comprimento do bloco. Assim, cada bloco será criptografado com a mesma
+chave e o mesmo algoritmo. Logo, a vulnerabilidade do algoritmo está nessa
+última característica apresentada, pois se criptografarmos o mesmo \emph{plaintext},
+obteremos o mesmo \emph{cyphertext}, tendo assim a possibilidade de criptografar e
+descriptografar em paralelo.
+
+\subsubsection{Cifração}
+\label{sec:org588407b}
+
+O modo ECB é inicializado com /key/(chave) e /round/(número de rodadas).
+O primeiro método a ser chamado é o \textbf{\_\_expand\_key}, nele é que ocorre o processo
+de expansão da chave, ele tem como entrada uma chave de 16 \emph{bytes}, permitindo
+assim a construção de uma matriz linear de 176 \emph{bytes}, o suficiente para
+fornecer uma chave de 16 \emph{bytes} para o estágio \textbf{\_\_add\_round\_key} no início da
+criptografia e cada uma das 10 rodadas seguintes.
+
+O próximo estágio do modo é o \emph{bytes2matrix}, nele os \emph{bytes} são convertidos em
+uma matriz \emph{4x4}. Logo depois o loop, de acordo com o número de rodadas
+especificado, é executado sendo que dentro dele há 4 funções. Sendo elas,
+\emph{sub\_bytes} em que os 16 \emph{bytes} de entrada são substituídos de acordo com a
+constante \emph{rijndael\_box} fornecida pelo algoritmo; resultando assim em uma
+matriz \emph{4x4}. A segunda função é \textbf{shift\_rows}, nela cada uma das quatro linhas
+da matriz é deslocada para a esquerda, caso haja \emph{leak} dos elementos da matriz
+eles serão inseridos no lado direito da linha. A mudança ocorre da seguinte
+forma: a primeira linha não é deslocada; a segunda linha é deslocada um (byte)
+para a esquerda; a terceira linha é deslocada duas posições para a esquerda; a
+quarta linha é deslocada três posições para a esquerda; resultando assim em uma
+matriz de 16 \emph{bytes}, mas deslocados em relação um ao outro. A terceira função é
+\textbf{mix\_columns}, nela cada coluna de 4 \emph{bytes} é transformada usando uma função
+que toma como entrada os 4 \emph{bytes} de uma coluna e gera outros 4 novos \emph{bytes},
+substituindo assim a coluna original; resultando em uma nova matriz de 16
+\emph{bytes}; essa é a única função que não é utilizada na última rodada. A última
+função do laço é a \textbf{add\_round\_key}, nela os 16 \emph{bytes} são considerados 128
+\emph{bits} e se for a última rodada, a saída será o texto cifrado, caso contrário,
+o resultado de 128 \emph{bits} são interpretados como 16 \emph{bytes} e é novamente
+iniciada uma nova rodada. Após o laço, as funções de \textbf{sub\_bytes}, \textbf{shift\_rows} e
+\textbf{add\_round\_key} são executadas novamente e por fim a função de \emph{encrypt} no
+modo ECB retorna um conjunto de bytes da imagem cifrada.
+
+\subsubsection{Decifração}
+\label{sec:orgce52941}
+
+O processo de decifração no modo ECB é semelhante ao processo de cifração,
+porém, é realizado na ordem inversa. Cada rodada consiste em 4 processos
+conduzidos na ordem inversa: \textbf{add\_round\_key}, \textbf{inv\_mix\_columns},
+\textbf{inv\_shift\_rows}, \textbf{inv\_sub\_bytes}. O retorno da função é a imagem em \emph{bytes}
+decriptada.
+
+\subsection{O modo CTR}
+\label{sec:org97f4029}
+
+Esse modo é um dos mais complexos e completos do AES. Nele é utilizado um
+contador que tem o mesmo tamanho do bloco usado. No CTR, a operação XOR com o
+\emph{plaintext} é realizada no bloco de saída do criptografador. Todos os blocos de
+criptografia usam a mesma chave de criptografia. Portanto, para garantir a maior
+segurança é necessário que a chave seja alterada a cada \(2^\frac{n}{2}\) blocos de
+criptografia.
+
+\subsubsection{Cifração}
+\label{sec:org653243a}
+
+O modo CTR possui algumas funções em comum com o modo ECB, assim como com os
+demais modos do modelo AES. Por isso, comentaremos somente as diferentes funções
+do modo ECB. Esse modo é inicializado com um parâmetro
+(\emph{iv} - vetor de inicialização) a mais em relação ao modo ECB, esse vetor é o
+bloco “falso” para o processo de cifragem nesse modo que gera mais aleatoriedade
+na função. Além disso, o incremento é realizado pela função \textbf{text\_\_inc\_bytes}. Uma
+diferença importante entre o modo ECB e CTR é o uso de XOR, nno modo CTR, em
+cada bloco gerado com o auxílio do vetor de inicialização para gerar mais
+aleatoriedade na cifragem.  Ao final é retornado um vetor de \emph{bytes} da imagem
+encriptada.
+
+\subsubsection{Decifração}
+\label{sec:orgb2ea0cd}
+
+O processo de decifração no modo CTR é semelhante ao processo de cifração,
+porém, é realizado na ordem inversa. O retorno da função é a imagem em \emph{bytes}
+decriptada.
+
+\section{Arquitetura do Projeto}
+\label{sec:org39f0397}
+
+O projeto foi escrito na linguagem Python utilizando-se de módulos para
+organização do código. O AES, neste projeto, é um módulo contendo dois arquivos
+que implementam o modo ECB e CTR. Além disso, há abstrações para manipular
+imagens no formato bitmap para que seja possível visualizar o resultado da
+cifragem e decifragem.
+
+Para implementar a o registro da imagem em modo bitmap corretamente, é
+necessário extrair o cabeçalho e o corpo da imagem, cifrar o corpo e inserir o
+cabeçalho no corpo cifrado. Deste modo, a imagem é corretamente interpretada.
+
+\(\newpage\)
+
+\section{Resultados}
+\label{sec:org61737e1}
+
+Para obtenção dos resultados foi necessário utilizar cinco ciclos de
+criptografia e o comando para inicialização do algoritmo pode ser visto abaixo.
+
+\begin{minted}[frame=lines,linenos=true]{shell}
+python3 src/main.py -i assets/medium.bmp -k "r@f@el" -c 5 -m ecb
+python3 src/main.py -i assets/medium.bmp -k "r@f@el" -c 5 -m ctr
+\end{minted}
+
+Ao executar o algoritmo no modo ECB, observou-se os cinco ciclos de cifragem e
+decifragem da imagem. As imagens estão organizadas abaixo, sendo incluído
+somente 4 para simplificação.
+
+\begin{figure}[ht]
+  \center
+  \label{ fig7}
+  \begin{minipage}[b]{0.4\linewidth}
+    \centering
+    \includegraphics[width=.4\linewidth]{assets/documentation/medium.bmp.dec-1.ecb.png}
+    \caption{Ciclo 1 de AES (enc)}
+    \vspace{4ex}
+  \end{minipage}%%
+  \begin{minipage}[b]{0.4\linewidth}
+    \centering
+    \includegraphics[width=.4\linewidth]{assets/documentation/medium.bmp.dec-0.ecb.png}
+    \caption{Ciclo 1 de AES (dec)}
+    \vspace{4ex}
+  \end{minipage}
+  \begin{minipage}[b]{0.4\linewidth}
+    \centering
+    \includegraphics[width=.4\linewidth]{assets/documentation/medium.bmp.enc-1.ecb.png}
+    \caption{Ciclo 2 de AES (enc)}
+    \vspace{4ex}
+  \end{minipage}%%
+  \begin{minipage}[b]{0.4\linewidth}
+    \centering
+    \includegraphics[width=.4\linewidth]{assets/documentation/medium.bmp.enc-0.ecb.png}
+    \caption{Ciclo 2 de AES (dec)}
+    \vspace{4ex}
+  \end{minipage}
+\end{figure}
+
+As imagens mosram, claramente, como os ciclos de cifragem alteram a imagem. Isto
+é, a imagem decifrada do ciclo dois (imagem 4) corresponde exatamente com a
+figura cifrada do ciclo 1 (imagem 1).
+
+A execução do modo CTR foi realizada de modo análogo, com uma ressalva, foi
+possível indicar que a entropia da imagem é maior do que o modo ECB.
+
+\begin{figure}[ht]
+  \center
+  \label{ fig7}
+  \begin{minipage}[b]{0.4\linewidth}
+    \centering
+    \includegraphics[width=.4\linewidth]{assets/documentation/medium.enc-0.ctr.png}
+    \caption{Imagem cifrada com CTR}
+    \vspace{4ex}
+  \end{minipage}%%
+  \begin{minipage}[b]{0.4\linewidth}
+    \centering
+    \includegraphics[width=.4\linewidth]{assets/documentation/medium.dec-0.ctr.png}
+    \caption{Imagem decifrada com CTR}
+    \vspace{4ex}
+  \end{minipage}
+\end{figure}
+
+\section{Problemas}
+\label{sec:orgdd05abc}
+
+O fator limitante na execução do algoritmo em grandes imagens foi a escolha da
+linguagem além de que não foi implementado qualquer tipo de mecanismo de
+concorrência ou paralelismo afim de aumentar a velocidade do processamento em
+computadores com mais núcleos.
+
+O material na internet divergia bastante e foi necessário fazer um grande filtro
+e vários testes para verificar o que funcionava ou não, com respeito a
+manipulação de imagens.
+
+A manipulação de imagens no formato png ou jpeg/jpg é mais complexa pois dados
+da imagem permeiam os dados de cor, dificultando a edição dos dados tal qual é
+feito de maneira simples utilizando bitmaps.
 
 \section{Configuração de Ambiente}
-\label{sec:org510f15f}
+\label{sec:orgfad789a}
 
 O ambiente utilizado para construção e teste do trabalho é o GNU/Linux, com o
 python na versão 3.6.9. No Windows o python3 é instalado com o nome python.
-ertifique-se de que está utilizando a versão correta com `python --version`.
+certifique-se de que está utilizando a versão correta com \texttt{python -{}-version}.
+
+Se for desejo do corretor, o trabalho também contém testes que podem ser
+executados afim de demonstrar a corretude do algoritmo. Para isso basta instalar
+a única dependência necessária (Crypto) através do pip com o seguinte comando:
+
+\begin{minted}[frame=lines,linenos=true]{shell}
+$ pip install -r requirements.txt
+\end{minted}
+
+Após instalar a dependência, execute o script \texttt{src/(ctr|ecb)\_test.py}. O CTR e o
+ECB vão falhar de imediato pois a implementação desses na biblioteca Crypto é
+diferente da realizada por nós. Isso porquê existem algumas diferenças nas APIs
+de construção da cifra.
+
+A título de exemplo o algoritmo de CTR é inicializado, com a biblioteca Crypto,
+utilizando uma função interna de contagem.
+
+\subsection{Execução e testes do programa}
+\label{sec:org9ed9a08}
 
 O programa na sua configuração atual suporta diversos tipos de parâmetros, todos
-listados e documentos ao executar o comando python3 src/main.py --help. Exemplos
-de utilização são listados abaixo.
+listados e documentos ao executar o comando \texttt{python3 src/main.py -{}-help}.
+Exemplos de utilização são listados abaixo.
+
+\begin{minted}[frame=lines,linenos=true]{shell}
+$ python3 src/main.py -i assets/github_profile.png -k "sua chave"
+$ python3 src/main.py -i assets/github_profile.png -k "sua chave"
+  -m ctr
+$ python3 src/main.py -i assets/github_profile.png -k "sua chave"
+  -m ctr -c 5
+\end{minted}
+
+Dois dos argumentos que podem confundir o usuário é o \texttt{-c} e o \texttt{-r}. O primeiro
+diz respeito ao número de ciclos de cifração e decifração que será aplicado ao
+arquivo e o segundo é o número de rodadas que o algoritmo irá executar para
+cifrar o arquivo.
+
+Por fim, a execução do programa resulta em arquivos com sufixos \textbf{dec} ou \textbf{enc},
+juntamente ao índice do ciclo do algoritmo na pasta em que o programa python foi
+iniciado.
+
+\(\newpage\)
+
+\section{Referências}
+\label{sec:orgb8d8158}
+
+\begin{enumerate}
+\item \url{https://csrc.nist.gov/csrc/media/projects/cryptographic-standards-and-guidelines/documents/aes-development/rijndael-ammended.pdf} \(\\\)
+\label{sec:org6225edc}
+\item \url{https://pillow.readthedocs.io/en/stable/reference/Image.html} \(\\\)
+\label{sec:org95cd7d8}
+\item \url{https://xilinx.github.io/Vitis\_Libraries/security/2020.1/guide\_L1/internals/ecb.html} \(\\\)
+\label{sec:orgf424d13}
+\item \url{https://www.intechopen.com/chapters/67728} \(\\\)
+\label{sec:org5153775}
+\item \url{https://www.gta.ufrj.br/grad/10\_1/aes/index\_files/Page588.htm} \(\\\)
+\label{sec:org443da9b}
+\item \url{https://asecuritysite.com/subjects/chapter88} \(\\\)
+\label{sec:org6326958}
+\item \url{https://www.intechopen.com/chapters/67728} \(\\\)
+\label{sec:orgc075500}
+\end{enumerate}
 \end{document}

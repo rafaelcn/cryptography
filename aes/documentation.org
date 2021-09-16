@@ -8,6 +8,10 @@
 #+AUTHOR: Rafael Campos Nunes$^1$, Rafael Henrique Nogalha de Lima$^2$ $\\$ 19/0098295$^1$ 19/0036966$^2$
 #+DATE:
 
+#+LANGUAGE: pt_BR
+
+#+OPTIONS: ^:nil _:nil
+
 $\newpage$
 
 * O AES
@@ -17,13 +21,17 @@ criptografia criado por Rijndael[fn:1], sendo uma cifra de bloco de chave
 simétrica. Este algoritmo, ao contrário do DES (Data Encryption Standard), não
 utiliza uma rede Feistel e é rápido tanto em hardware quanto em software.
 
-** Implementação do Algoritmo
+A ideia geral do algoritmo é separar a mensagem em blocos e cifrá-las
+individualmente. A depender do modo utilizado para cifragem dos blocos
+algumas particularidades são adicionadas aos blocos. É importante ressaltar
+que esses blocos podem ter tamanhos variados de 128, 192, 256 bits.
 
-O AES
+A cifragem em blocos do AES implica em uma característica interessante sobre
+a execução do algoritmo, ele pode ser paralelizado ou executado em concorrência
+já que, em alguns modos, cada bloco é cifrado independentemente do outro.
 
 
-
-*** ECB
+** O modo ECB
 
 Esse é o modo mais simples do AES. Basicamente, o /plaintext/ é dividido em
 blocos, e no caso da implementação do trabalho, ele tem comprimento de 128 bits.
@@ -34,14 +42,169 @@ chave e o mesmo algoritmo. Logo, a vulnerabilidade do algoritmo está nessa
 obteremos o mesmo /cyphertext/, tendo assim a possibilidade de criptografar e
 descriptografar em paralelo.
 
+*** Cifração
 
-*** CTR
+O modo ECB é inicializado com /key/(chave) e /round/(número de rodadas).
+O primeiro método a ser chamado é o *__expand_key*, nele é que ocorre o processo
+de expansão da chave, ele tem como entrada uma chave de 16 /bytes/, permitindo
+assim a construção de uma matriz linear de 176 /bytes/, o suficiente para
+fornecer uma chave de 16 /bytes/ para o estágio *__add_round_key* no início da
+criptografia e cada uma das 10 rodadas seguintes.
+
+O próximo estágio do modo é o /bytes2matrix/, nele os /bytes/ são convertidos em
+uma matriz /4x4/. Logo depois o loop, de acordo com o número de rodadas
+especificado, é executado sendo que dentro dele há 4 funções. Sendo elas,
+/sub_bytes/ em que os 16 /bytes/ de entrada são substituídos de acordo com a
+constante /rijndael_box/ fornecida pelo algoritmo; resultando assim em uma
+matriz /4x4/. A segunda função é *shift_rows*, nela cada uma das quatro linhas
+da matriz é deslocada para a esquerda, caso haja /leak/ dos elementos da matriz
+eles serão inseridos no lado direito da linha. A mudança ocorre da seguinte
+forma: a primeira linha não é deslocada; a segunda linha é deslocada um (byte)
+para a esquerda; a terceira linha é deslocada duas posições para a esquerda; a
+quarta linha é deslocada três posições para a esquerda; resultando assim em uma
+matriz de 16 /bytes/, mas deslocados em relação um ao outro. A terceira função é
+*mix_columns*, nela cada coluna de 4 /bytes/ é transformada usando uma função
+que toma como entrada os 4 /bytes/ de uma coluna e gera outros 4 novos /bytes/,
+substituindo assim a coluna original; resultando em uma nova matriz de 16
+/bytes/; essa é a única função que não é utilizada na última rodada. A última
+função do laço é a *add_round_key*, nela os 16 /bytes/ são considerados 128
+/bits/ e se for a última rodada, a saída será o texto cifrado, caso contrário,
+o resultado de 128 /bits/ são interpretados como 16 /bytes/ e é novamente
+iniciada uma nova rodada. Após o laço, as funções de *sub_bytes*, *shift_rows* e
+*add_round_key* são executadas novamente e por fim a função de /encrypt/ no
+modo ECB retorna um conjunto de bytes da imagem cifrada.
+
+*** Decifração
+
+O processo de decifração no modo ECB é semelhante ao processo de cifração,
+porém, é realizado na ordem inversa. Cada rodada consiste em 4 processos
+conduzidos na ordem inversa: *add_round_key*, *inv_mix_columns*,
+*inv_shift_rows*, *inv_sub_bytes*. O retorno da função é a imagem em /bytes/
+decriptada.
+
+** O modo CTR
+
+Esse modo é um dos mais complexos e completos do AES. Nele é utilizado um
+contador que tem o mesmo tamanho do bloco usado. No CTR, a operação XOR com o
+/plaintext/ é realizada no bloco de saída do criptografador. Todos os blocos de
+criptografia usam a mesma chave de criptografia. Portanto, para garantir a maior
+segurança é necessário que a chave seja alterada a cada $2^\frac{n}{2}$ blocos de
+criptografia.
+
+*** Cifração
+
+O modo CTR possui algumas funções em comum com o modo ECB, assim como com os
+demais modos do modelo AES. Por isso, comentaremos somente as diferentes funções
+do modo ECB. Esse modo é inicializado com um parâmetro
+(/iv/ - vetor de inicialização) a mais em relação ao modo ECB, esse vetor é o
+bloco “falso” para o processo de cifragem nesse modo que gera mais aleatoriedade
+na função. Além disso, o incremento é realizado pela função *text__inc_bytes*. Uma
+diferença importante entre o modo ECB e CTR é o uso de XOR, nno modo CTR, em
+cada bloco gerado com o auxílio do vetor de inicialização para gerar mais
+aleatoriedade na cifragem.  Ao final é retornado um vetor de /bytes/ da imagem
+encriptada.
+
+*** Decifração
+
+O processo de decifração no modo CTR é semelhante ao processo de cifração,
+porém, é realizado na ordem inversa. O retorno da função é a imagem em /bytes/
+decriptada.
 
 * Arquitetura do Projeto
 
+O projeto foi escrito na linguagem Python utilizando-se de módulos para
+organização do código. O AES, neste projeto, é um módulo contendo dois arquivos
+que implementam o modo ECB e CTR. Além disso, há abstrações para manipular
+imagens no formato bitmap para que seja possível visualizar o resultado da
+cifragem e decifragem.
 
-* Limitações
+Para implementar a o registro da imagem em modo bitmap corretamente, é
+necessário extrair o cabeçalho e o corpo da imagem, cifrar o corpo e inserir o
+cabeçalho no corpo cifrado. Deste modo, a imagem é corretamente interpretada.
 
+$\newpage$
+
+* Resultados
+
+Para obtenção dos resultados foi necessário utilizar cinco ciclos de
+criptografia e o comando para inicialização do algoritmo pode ser visto abaixo.
+
+#+BEGIN_SRC shell
+python3 src/main.py -i assets/medium.bmp -k "r@f@el" -c 5 -m ecb
+python3 src/main.py -i assets/medium.bmp -k "r@f@el" -c 5 -m ctr
+#+END_SRC
+
+Ao executar o algoritmo no modo ECB, observou-se os cinco ciclos de cifragem e
+decifragem da imagem. As imagens estão organizadas abaixo, sendo incluído
+somente 4 para simplificação.
+
+\begin{figure}[ht]
+  \center
+  \label{ fig7}
+  \begin{minipage}[b]{0.4\linewidth}
+    \centering
+    \includegraphics[width=.4\linewidth]{assets/documentation/medium.bmp.dec-1.ecb.png}
+    \caption{Ciclo 1 de AES (enc)}
+    \vspace{4ex}
+  \end{minipage}%%
+  \begin{minipage}[b]{0.4\linewidth}
+    \centering
+    \includegraphics[width=.4\linewidth]{assets/documentation/medium.bmp.dec-0.ecb.png}
+    \caption{Ciclo 1 de AES (dec)}
+    \vspace{4ex}
+  \end{minipage}
+  \begin{minipage}[b]{0.4\linewidth}
+    \centering
+    \includegraphics[width=.4\linewidth]{assets/documentation/medium.bmp.enc-1.ecb.png}
+    \caption{Ciclo 2 de AES (enc)}
+    \vspace{4ex}
+  \end{minipage}%%
+  \begin{minipage}[b]{0.4\linewidth}
+    \centering
+    \includegraphics[width=.4\linewidth]{assets/documentation/medium.bmp.enc-0.ecb.png}
+    \caption{Ciclo 2 de AES (dec)}
+    \vspace{4ex}
+  \end{minipage}
+\end{figure}
+
+As imagens mosram, claramente, como os ciclos de cifragem alteram a imagem. Isto
+é, a imagem decifrada do ciclo dois (imagem 4) corresponde exatamente com a
+figura cifrada do ciclo 1 (imagem 1).
+
+A execução do modo CTR foi realizada de modo análogo, com uma ressalva, foi
+possível indicar que a entropia da imagem é maior do que o modo ECB.
+
+\begin{figure}[ht]
+  \center
+  \label{ fig7}
+  \begin{minipage}[b]{0.4\linewidth}
+    \centering
+    \includegraphics[width=.4\linewidth]{assets/documentation/medium.enc-0.ctr.png}
+    \caption{Imagem cifrada com CTR}
+    \vspace{4ex}
+  \end{minipage}%%
+  \begin{minipage}[b]{0.4\linewidth}
+    \centering
+    \includegraphics[width=.4\linewidth]{assets/documentation/medium.dec-0.ctr.png}
+    \caption{Imagem decifrada com CTR}
+    \vspace{4ex}
+  \end{minipage}
+\end{figure}
+
+* Problemas
+
+O fator limitante na execução do algoritmo em grandes imagens foi a escolha da
+linguagem além de que não foi implementado qualquer tipo de mecanismo de
+concorrência ou paralelismo afim de aumentar a velocidade do processamento em
+computadores com mais núcleos.
+
+O material na internet divergia bastante e foi necessário fazer um grande filtro
+e vários testes para verificar o que funcionava ou não, com respeito a
+manipulação de imagens.
+
+A manipulação de imagens no formato png ou jpeg/jpg é mais complexa pois dados
+da imagem permeiam os dados de cor, dificultando a edição dos dados tal qual é
+feito de maneira simples utilizando bitmaps.
 
 * Configuração de Ambiente
 
@@ -73,8 +236,10 @@ Exemplos de utilização são listados abaixo.
 
 #+BEGIN_SRC shell
 $ python3 src/main.py -i assets/github_profile.png -k "sua chave"
-$ python3 src/main.py -i assets/github_profile.png -k "sua chave" -m ctr
-$ python3 src/main.py -i assets/github_profile.png -k "sua chave" -m ctr -c 5
+$ python3 src/main.py -i assets/github_profile.png -k "sua chave"
+  -m ctr
+$ python3 src/main.py -i assets/github_profile.png -k "sua chave"
+  -m ctr -c 5
 #+END_SRC
 
 Dois dos argumentos que podem confundir o usuário é o ~-c~ e o ~-r~. O primeiro
@@ -83,8 +248,20 @@ arquivo e o segundo é o número de rodadas que o algoritmo irá executar para
 cifrar o arquivo.
 
 Por fim, a execução do programa resulta em arquivos com sufixos *dec* ou *enc*,
-juntamente ao índice do ciclo do algoritmo.
+juntamente ao índice do ciclo do algoritmo na pasta em que o programa python foi
+iniciado.
 
+$\newpage$
+
+* Referências
+
+**** https://csrc.nist.gov/csrc/media/projects/cryptographic-standards-and-guidelines/documents/aes-development/rijndael-ammended.pdf $\\$
+**** https://pillow.readthedocs.io/en/stable/reference/Image.html $\\$
+**** https://xilinx.github.io/Vitis_Libraries/security/2020.1/guide_L1/internals/ecb.html $\\$
+**** https://www.intechopen.com/chapters/67728 $\\$
+**** https://www.gta.ufrj.br/grad/10_1/aes/index_files/Page588.htm $\\$
+**** https://asecuritysite.com/subjects/chapter88 $\\$
+**** https://www.intechopen.com/chapters/67728 $\\$
 
 * Footnotes
 
