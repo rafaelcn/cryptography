@@ -1,7 +1,7 @@
 import random
 
 
-primes = [
+primes_table = [
     2, 3, 5, 7, 11, 13, 17, 19, 23, 29,
     31, 37, 41, 43, 47, 53, 59, 61, 67,
     71, 73, 79, 83, 89, 97, 101, 103,
@@ -42,7 +42,7 @@ def get_prime(size=1024):
     """
     while True:
         candidate = _get_random_number(1024)
-        for prime in primes:
+        for prime in primes_table:
             if candidate % prime == 0 and prime**2 <= candidate:
                 break
             else:
@@ -55,7 +55,7 @@ def primarity_test(mrc, iterations=20):
     """
     if mrc < 2:
         return False
-    if mrc in primes:
+    if mrc in primes_table:
         return True
     if mrc % 2 == 0:
         return False
