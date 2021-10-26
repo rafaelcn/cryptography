@@ -12,6 +12,8 @@
 
 #+OPTIONS: ^:nil _:nil
 
+\newpage
+
 * Introdução
 
 
@@ -20,7 +22,8 @@
 
 O projeto foi escrito na linguagem Python utilizando-se de módulos para
 organização do código. A pasta RSA, neste projeto, é um módulo contendo
-que implementam . Além disso,
+vários objetos e funções que separam a responsabilidade do programa de maneira
+adequada afim de aumentar a compreensõa do código.
 
 
 * Problemas
