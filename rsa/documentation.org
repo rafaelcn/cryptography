@@ -1,0 +1,34 @@
+#+LATEX_HEADER: \usepackage{indentfirst}
+#+LATEX_HEADER: \usepackage{libertine}
+#+LATEX_HEADER: \usepackage{tkz-graph}
+#+LATEX_HEADER: \usepackage[usenames,dvipsnames]{xcolor}
+#+LATEX_HEADER: \usepackage[left=3cm,bottom=3cm,top=2cm,right=2cm]{geometry}
+
+#+TITLE: Criptografia Assimétrica (RSA)
+#+AUTHOR: Rafael Campos Nunes$^1$, Rafael Henrique Nogalha de Lima$^2$ $\\$ 19/0098295$^1$ 19/0036966$^2$
+#+DATE:
+
+#+LANGUAGE: pt_BR
+
+#+OPTIONS: ^:nil _:nil
+
+* Introdução
+
+
+
+* Arquitetura
+
+O projeto foi escrito na linguagem Python utilizando-se de módulos para
+organização do código. A pasta RSA, neste projeto, é um módulo contendo
+que implementam . Além disso,
+
+
+* Problemas
+
+
+
+* Ambiente
+
+O ambiente utilizado para construção e teste do trabalho é o GNU/Linux, com o
+python na versão 3.6.9. No Windows o python3 é instalado com o nome python.
+certifique-se de que está utilizando a versão correta com ~python --version~.
