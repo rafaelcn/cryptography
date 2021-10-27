@@ -3,7 +3,7 @@ from crypto import cipher
 
 def sign(data_hash, private_key, public_key):
     """
-    Sign (certificate) a piece of data hash.
+    Sign (certificate) a piece of data hash and return it.
     """
     signature = pow(cipher.os2ip(data_hash), private_key['d'], public_key['n'])
     signature = cipher.i2osp(signature, 1024)
@@ -13,10 +13,10 @@ def sign(data_hash, private_key, public_key):
 
 def validate(data_hash, signature, public_key):
     """
-    Validate a signature from a data hash.
+    Checks wheter or not a signature is really signed with the given public
+    key.
     """
-    validation = cipher.os2ip(signature)
-    validation = pow(signature, public_key['e'], public_key['n'])
+    validation = pow(cipher.os2ip(signature), public_key['e'], public_key['n'])
     validation = cipher.i2osp(validation, 32)
 
     if validation == data_hash:
