@@ -9,9 +9,22 @@ def write(filename, data):
     with open(filename, 'w') as f:
         f.write(data)
 
+
 def write_cryptogram(filename, encrypted_data: tuple, mode='w'):
     with open(filename, mode) as f:
         f.write(f'{encrypted_data}')
+
+
+def read_cryptogram(filename, mode='r'):
+    data = ''
+
+    with open(filename, mode) as f:
+        data = f.read()
+
+    data = data.replace('\'', "\"")
+    cryptogram = json.loads(data)
+
+    return cryptogram
 
 
 def read(filename, mode='r'):
