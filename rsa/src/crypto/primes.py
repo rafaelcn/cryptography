@@ -84,4 +84,3 @@ def primality(n: int, iterations=40):
             return False
 
     return True
-

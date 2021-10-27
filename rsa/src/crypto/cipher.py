@@ -10,15 +10,15 @@ import string
 from crypto import hash
 
 
-def mgf1(seed: bytes, mlen: int, f_hash=hash.hashit):
+def mgf1(input: bytes, mlen: int, f_hash=hash.hashit):
     """
-    Geracao de mascara com tamanho variavel
+    Mask generation function
     """
     t = b''
     hlen = len(f_hash(b''))
     for c in range(0, math.ceil(mlen/hlen)):
         temp_c = c.to_bytes(4, byteorder="big")
-        t += f_hash(seed + temp_c)
+        t += f_hash(input + temp_c)
 
     return t[:mlen]
 

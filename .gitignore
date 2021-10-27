@@ -14,11 +14,13 @@
 *hashes.txt
 
 #
-# public keys, encrypted and decrypted files
+# public keys, signatures, encrypted and decrypted files
 #
 *.dec
 *.enc
 *.pub
+*.prv
+*.sig
 
 #
 # compressed files

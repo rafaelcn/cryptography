@@ -11,15 +11,18 @@ def sign(data, private_key, public_key):
 
     return signature
 
+
 def validate(data, signature, public_key):
     """
     Checks wheter or not a signature is really signed with the given public
     key.
     """
+    hashed = hash.hashit(data)
+
     validation = pow(cipher.os2ip(signature), public_key['e'], public_key['n'])
     validation = cipher.i2osp(validation, 32)
 
-    if validation == data:
+    if validation == hashed:
         return True
 
     return False
