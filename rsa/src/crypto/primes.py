@@ -32,7 +32,7 @@ def get_random_bits(size=1024):
     """
     while True:
         candidate = get_prime(size)
-        if primarity_test(candidate):
+        if primality(candidate):
             return candidate
 
 
@@ -49,31 +49,39 @@ def get_prime(size=1024):
                 return candidate
 
 
-def primarity_test(mrc, iterations=20):
+def primality(n: int, iterations=40):
     """
-    Runs iterations number of times of the Rabin Miller primality test.
+    Runs iterations number of times of the Rabin Miller primality test and
+    returns whether or not a number n is a possible prime.
+
+    Why 40 rounds as a default? The answer lies below.
+    https://stackoverflow.com/questions/6325576/how-many-iterations-of-rabin-miller-should-i-use-for-cryptographic-safe-primes
     """
-    max_divisions = 0
-    ec = mrc - 1
 
-    while ec % 2 == 0:
-        ec >>= 1
-        max_divisions += 1
-        assert(2**max_divisions * ec == mrc - 1)
+    if n == 2:
+        return True
 
-        def trial(round_tester):
-            if pow(round_tester, ec, mrc) == 1:
-                return False
+    if n % 2 == 0 or n == 1:
+        return False
 
-            for i in range(max_divisions):
-                if (pow(round_tester, 2**i * ec, mrc) == mrc - 1):
-                    return False
+    r = 0
+    s = n - 1
 
-            return True
+    while s % 2 == 0:
+        r += 1
+        s >>= 1
 
-        for _ in range(iterations):
-            round_tester = random.randrange(2, mrc)
-            if trial(round_tester):
-                return False
+    for _ in range(iterations):
+        a = random.randrange(2, n - 1)
+        x = pow(a, s, n)
+        if x == 1 or x == n - 1:
+            continue
+        for _ in range(r - 1):
+            x = pow(x, 2, n)
+            if x == n - 1:
+                break
+        else:
+            return False
 
     return True
+

@@ -14,16 +14,16 @@ class TestPrimesAlgorithms(unittest.TestCase):
             2048: primes.get_prime(2048),
         }
 
-        for size, number in d.items():
-            print(f'{number} - {size}\n\n')
+        self.assertLessEqual(len(str(d[1024])), 1024)
+        self.assertLessEqual(len(str(d[2048])), 2048)
 
-    def test_primarity_test(self):
-        self.assertTrue(primes.primarity_test(2))
-        self.assertFalse(primes.primarity_test(6))
-        self.assertTrue(primes.primarity_test(7))
-        self.assertTrue(primes.primarity_test(11))
-        self.assertFalse(primes.primarity_test(121))
-        self.assertFalse(primes.primarity_test(1))
+    def test_primarity(self):
+        self.assertTrue(primes.primality(2))
+        self.assertFalse(primes.primality(6))
+        self.assertTrue(primes.primality(7))
+        self.assertTrue(primes.primality(11))
+        self.assertFalse(primes.primality(121))
+        self.assertFalse(primes.primality(1))
 
 
 if __name__ == "__main__":
