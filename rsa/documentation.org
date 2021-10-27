@@ -16,14 +16,20 @@
 
 * Introdução
 
-
+Foi inicialmente introduzido em 1977 por Ron Rivest, Adi Shamir e Leonard
+Adleman, por isso o acrônimo RSA. Ele é o método de criptografia assimétrica
+mais usado no mundo, no meio da internet. É assimétrico porque usa chave pública
+e privada, isso permite uma maior segurança na troca de dados e na integridade
+de informações. Além disso, o RSA, para a maior segurança, pode trocar mensagens
+em que são marcadas com uma assinatura, permitindo assim que os originadores
+criem mensagens inteligíveis apenas para os destinatários pretendidos.
 
 * Arquitetura
 
 O projeto foi escrito na linguagem Python utilizando-se de módulos para
 organização do código. A pasta RSA, neste projeto, é um módulo contendo
 vários objetos e funções que separam a responsabilidade do programa de maneira
-adequada afim de aumentar a compreensõa do código.
+adequada afim de aumentar a compreensão do código.
 
 
 * Problemas
@@ -35,3 +41,20 @@ adequada afim de aumentar a compreensõa do código.
 O ambiente utilizado para construção e teste do trabalho é o GNU/Linux, com o
 python na versão 3.6.9. No Windows o python3 é instalado com o nome python.
 certifique-se de que está utilizando a versão correta com ~python --version~.
+
+No projeto também há a escrita de testes unitários para garantir o funcionamento
+de partes do sistema. Nesse sentido, para executar os testes certifique-se de
+que está no diretório correto e execute, a depender do diretório, a seguinte
+linha de comando para cada teste:
+
+#+BEGIN_SRC shell
+$ PYTHONPATH=. python3 '<nome_do_teste>_test.py'
+#+END_SRC
+
+
+Ou, para realizar a execução de todos os testes, utilize a linha de comando
+abaixo dentro da pasta `src`.
+
+#+BEGIN_SRC shell
+$ PYTHONPATH=. python3 -m unittest discover -s . -p '*_test.py'
+#+END_SRC
