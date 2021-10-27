@@ -1,6 +1,3 @@
-
-
-
 def gcde(a, b):
     """
     Extended Euclidean Algorithm

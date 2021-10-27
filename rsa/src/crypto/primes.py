@@ -20,7 +20,7 @@ primes_table = [
 
 def _get_random_number(interval):
     """
-        Get a random number in the interval.
+    Get a random number in the defined interval.
     """
     return random.randrange(2**(interval-1), 2**interval - 1)
 
@@ -31,17 +31,17 @@ def get_random_bits(size=1024):
     passes the primarity test.
     """
     while True:
-        candidate = _get_random_number(size)
+        candidate = get_prime(size)
         if primarity_test(candidate):
             return candidate
 
 
 def get_prime(size=1024):
     """
-        Generate a prime candidate divisible by the first primes of the table.
+    Generate a prime candidate coprime with the first primes of the table.
     """
     while True:
-        candidate = _get_random_number(1024)
+        candidate = _get_random_number(size)
         for prime in primes_table:
             if candidate % prime == 0 and prime**2 <= candidate:
                 break
@@ -51,26 +51,29 @@ def get_prime(size=1024):
 
 def primarity_test(mrc, iterations=20):
     """
-        Runs iterations number of times of the Rabin Miller primality test.
+    Runs iterations number of times of the Rabin Miller primality test.
     """
-    if mrc < 2:
-        return False
-    if mrc in primes_table:
-        return True
-    if mrc % 2 == 0:
-        return False
-    s = mrc - 1
-    while s % 2 == 0:
-        s >>= 1
-    for _ in range(iterations):
-        a = random.randrange(2, mrc - 1)
-        v = pow(a, s, mrc)
-        if v != 1:
-            i = 0
-            while v != mrc - 1:
-                if i == s - 1:
+    max_divisions = 0
+    ec = mrc - 1
+
+    while ec % 2 == 0:
+        ec >>= 1
+        max_divisions += 1
+        assert(2**max_divisions * ec == mrc - 1)
+
+        def trial(round_tester):
+            if pow(round_tester, ec, mrc) == 1:
+                return False
+
+            for i in range(max_divisions):
+                if (pow(round_tester, 2**i * ec, mrc) == mrc - 1):
                     return False
-                else:
-                    i += 1
-                    v = (v ** 2) % mrc
+
+            return True
+
+        for _ in range(iterations):
+            round_tester = random.randrange(2, mrc)
+            if trial(round_tester):
+                return False
+
     return True

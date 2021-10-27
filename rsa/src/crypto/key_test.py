@@ -3,7 +3,8 @@ import unittest
 from crypto import key
 from crypto import primes
 
-# PYTHONPATH=../ python3 key_test.py
+# PYTHONPATH=. python3 crypto/key_test.py (on src)
+# PYTHONPATH=../ python3 key_test.py (on src/crypto)
 
 
 class TestKeyAlgorithms(unittest.TestCase):
@@ -13,11 +14,11 @@ class TestKeyAlgorithms(unittest.TestCase):
 
         public_key, private_key = key.generate(p, q)
 
-        self.assertEqual(public_key[1], p * q)
-        self.assertEqual(private_key[1], p * q)
+        self.assertEqual(public_key['n'], p * q)
+        self.assertEqual(private_key['n'], p * q)
 
-        print("public key: ", public_key[0])
-        print("private key: ", private_key[0])
+        self.assertTrue(len(str(private_key['d'])) > 0)
+        self.assertTrue(len(str(public_key['e'])) > 0)
 
 
 if __name__ == "__main__":

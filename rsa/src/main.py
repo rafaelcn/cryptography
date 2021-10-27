@@ -1,3 +1,4 @@
+import sys
 import argparse
 
 
@@ -12,6 +13,7 @@ def create_parser():
                         + ' data')
     parser.add_argument('--file', '-f', type=list, help='files to be encrypted'
                         + ' or decrypted')
+    parser.add_argument('--output', '-o', type=str, help='output file name')
 
     return parser
 
@@ -23,7 +25,7 @@ def main():
 
     if (parser.file is None):
         print('No files specified')
-        return
+        sys.exit(1)
 
     if (parser.encrypt):
         encrypt(parser.file)

@@ -6,8 +6,8 @@ from crypto.utils import gcde
 
 def generate(p, q):
     """
-        Generates a public and private key pair from two large prime numbers p
-        and q.
+    Generates a public and private key pair from two large prime numbers p and
+    q.
     """
     n = p * q
     phi = (p - 1) * (q - 1)
@@ -19,7 +19,7 @@ def generate(p, q):
                 d = t % phi
                 break
 
-    public_key = (e, n)
-    private_key = (d, n)
+    public_key = {'e': e, 'n': n}
+    private_key = {'d': d, 'n': n}
 
     return public_key, private_key
