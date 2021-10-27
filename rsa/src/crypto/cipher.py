@@ -7,10 +7,10 @@ import math
 import random
 import string
 
-from hash import hashit
+from crypto import hash
 
 
-def mgf1(seed: bytes, mlen: int, f_hash=hashit):
+def mgf1(seed: bytes, mlen: int, f_hash=hash.hashit):
     """
     Geracao de mascara com tamanho variavel
     """
@@ -61,7 +61,7 @@ def oaep_encode(m: string, n: int, k0: int, k1: int):
 
     # 4) XOR bytes with the expanded r
     x = xor(bytes(m, "utf-8"), expanded)
-    y = xor(bytes(r, "utf-8"), hashit(x))
+    y = xor(bytes(r, "utf-8"), hash.hashit(x))
 
     # 5) Concat the result bytes from step 4)
     result = b''.join([x, y])
@@ -72,7 +72,7 @@ def oaep_encode(m: string, n: int, k0: int, k1: int):
 def oaep_decode(x: bytes, y: bytes, n=1024, padding=32):
     """
     """
-    r = xor(y, hashit(x))
+    r = xor(y, hash.hashit(x))
     m = xor(x, mgf1(r, n - padding))
 
     # for clearer output we transform the bytes to string and remove any

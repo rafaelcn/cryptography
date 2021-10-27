@@ -14,6 +14,13 @@
 *hashes.txt
 
 #
+# public keys, encrypted and decrypted files
+#
+*.dec
+*.enc
+*.pub
+
+#
 # compressed files
 #
 *.zip
@@ -25,3 +32,8 @@
 *.tbz
 *.tbz2
 *.txz
+
+#
+# text files
+#
+*.txt

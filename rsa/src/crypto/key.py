@@ -1,7 +1,7 @@
 import math
 import random
 
-from utils import gcde
+from crypto import utils
 
 
 def generate(p, q):
@@ -14,7 +14,7 @@ def generate(p, q):
     while True:
         e = random.randint(1, phi - 1)
         if math.gcd(e, phi) == 1:
-            u, s, t = gcde(phi, e)
+            u, s, t = utils.gcde(phi, e)
             if u == (s * phi + t * e):
                 d = t % phi
                 break
