@@ -1,7 +1,7 @@
 import unittest
 
 from crypto import key
-from crypto import primes
+from crypto import primes 
 
 # PYTHONPATH=. python3 crypto/key_test.py (on src)
 # PYTHONPATH=../ python3 key_test.py (on src/crypto)
@@ -9,8 +9,8 @@ from crypto import primes
 
 class TestKeyAlgorithms(unittest.TestCase):
     def test_key_gen(self):
-        p = primes.get_prime(1024)
-        q = primes.get_prime(1024)
+        p = primes.get_random_bits(1024)
+        q = primes.get_random_bits(1024)
 
         public_key, private_key = key.generate(p, q)
 

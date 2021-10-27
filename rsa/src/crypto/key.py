@@ -1,7 +1,7 @@
 import math
 import random
 
-from crypto.utils import gcde
+from utils import gcde
 
 
 def generate(p, q):
