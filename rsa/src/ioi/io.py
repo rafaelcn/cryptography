@@ -10,7 +10,7 @@ def write(filename, data):
         f.write(data)
 
 
-def write_cryptogram(filename, encrypted_data: tuple, mode='w'):
+def write_cryptogram(filename, encrypted_data: dict, mode='w'):
     with open(filename, mode) as f:
         f.write(f'{encrypted_data}')
 

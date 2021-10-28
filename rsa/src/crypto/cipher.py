@@ -77,7 +77,7 @@ def oaep_decode(x: bytes, y: bytes, n=1024, padding=32):
 
     # for clearer output we transform the bytes to string and remove any
     # inserted zero characters.
-    m = str(m, 'utf-8')
+    m = str(m, 'utf-8', 'replace')
     m = str(m).replace("0", "")
 
     return r, m
@@ -90,21 +90,27 @@ def encrypt(msg, public_key: dict):
     x, y, m = oaep_encode(msg, 1024, 32, 16)
 
     c = pow(os2ip(m), public_key['e'], public_key['n'])
-    return c, len(m), len(x), len(y)
+
+    d = {
+        'x': len(x),
+        'y': len(y),
+        'm': len(m),
+        'criptogram': c
+    }
+
+    return d
 
 
-def decrypt(data: tuple, private_key: dict):
+def decrypt(data: dict, private_key: dict):
     """
     Decrypts a message using the private key tuple containing n and d
     """
-    m = pow(data[0], private_key['d'], private_key['n'])
+    m = pow(data['criptogram'], private_key['d'], private_key['n'])
 
-    message_size = data[1]
+    x = data['x']
+    y = data['y']
 
-    x = data[2]
-    y = data[3]
-
-    bytes = i2osp(m, message_size)
+    bytes = i2osp(m, data['m'])
     message = oaep_decode(bytes[:x], bytes[x:x + y])
 
     return message[1]

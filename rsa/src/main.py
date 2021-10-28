@@ -82,8 +82,10 @@ def main():
         elif (parser.decrypt):
             prv_key = io.read_key(parser.key)
 
-            data = io.read(parser.file)
-            cipher.decrypt(data, prv_key)
+            data = io.read_cryptogram(parser.file)
+            decipher = cipher.decrypt(data, prv_key)
+
+            io.write(parser.file + ".dec", decipher)
     elif (parser.sign):
         pub_key = {}
         prv_key = {}
