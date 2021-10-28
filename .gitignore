@@ -39,3 +39,8 @@
 # text files
 #
 *.txt
+
+#
+# trash folders
+#
+_minted*
