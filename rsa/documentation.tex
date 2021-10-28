@@ -1,4 +1,4 @@
-% Created 2021-10-25 seg 23:54
+% Created 2021-10-27 qua 22:24
 \documentclass[11pt]{article}
 \usepackage[latin1]{inputenc}
 \usepackage[T1]{fontenc}
@@ -20,8 +20,10 @@
 \usepackage{indentfirst}
 \usepackage{libertine}
 \usepackage{tkz-graph}
+\usepackage{listings}
+\usepackage{xcolor}
 \usepackage[usenames,dvipsnames]{xcolor}
-\usepackage[left=3cm,bottom=3cm,top=2cm,right=2cm]{geometry}
+\usepackage[left=2cm,bottom=2cm,top=2cm,right=2cm]{geometry}
 \author{Rafael Campos Nunes$^1$, Rafael Henrique Nogalha de Lima$^2$ $\\$ 19/0098295$^1$ 19/0036966$^2$}
 \date{}
 \title{Criptografia Assimétrica (RSA)}
@@ -34,23 +36,105 @@
 \maketitle
 \tableofcontents
 
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    shownumbers=false,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2,
+    framesep=20pt}
+
+\lstset{style=mystyle}
+
+
+\newpage
 
 \section{Introdução}
 \label{sec-1}
 
-
+Foi inicialmente introduzido em 1977 por Ron Rivest, Adi Shamir e Leonard
+Adleman, por isso o acrônimo RSA. Ele é o método de criptografia assimétrica
+mais usado no mundo, no meio da internet. É assimétrico porque usa chave pública
+e privada, isso permite uma maior segurança na troca de dados e na integridade
+de informações. Além disso, o RSA, para a maior segurança, pode trocar mensagens
+em que são marcadas com uma assinatura, permitindo assim que os originadores
+criem mensagens inteligíveis apenas para os destinatários pretendidos.
 
 \section{Arquitetura}
 \label{sec-2}
 
 O projeto foi escrito na linguagem Python utilizando-se de módulos para
 organização do código. A pasta RSA, neste projeto, é um módulo contendo
-que implementam . Além disso,
+vários objetos e funções que separam a responsabilidade do programa de maneira
+adequada afim de aumentar a compreensão do código.
 
+Nessa esteira, o código contém um módulo principal denominado \emph{crypto} que
+armazena vários outros arquivos, cada um contendo responsabilidades bem
+determinadas. Os arquivos do módulo são denotados na tabela abaixo, assim como
+a descrição de sua responsabilidade
+
+\begin{center}
+\begin{tabular}{ll}
+Arquivo & Funcionalidade\\
+\hline
+cipher.py & Interface para cifração e decifração de dados e outras funções criptográficas\\
+certificate.py & Interface para assinatura e validação de assinaturas\\
+hash.py & Contém abstração de uma função hash utilizada no módulo\\
+primes.py & Interface para geração de números primos, teste de primalidade etc\\
+key.py & Interface para geração de chaves públicas e privadas\\
+utils.py & Contém função matemática para cálculo do MDC extendido\\
+\end{tabular}
+\end{center}
+
+O segundo módulo do sistema é denominado \emph{ioi}, responsável por disponibilizar
+funções para serialização e deserialização de objetos utilizados no contexto
+criptográfico.
+
+\subsection{Cifração e Decifração}
+\label{sec-2-1}
+
+
+
+\subsection{Serialização}
+\label{sec-2-2}
+
+A serialização de dados nesse projeto foi fundamental pois, de outra forma,
+não conseguiríamos cifrar ou decifrar arquivos dado que, a título de exemplo,
+precisamos do tamanho da chave que foi gerada e também dados sobre a paginação
+(\emph{padding}) do arquivo que foi cifrado. Portanto, o módulo \emph{ioi} nos permite que
+coloquemos metadados nos arquivos que são gravados em disco.
 
 \section{Problemas}
 \label{sec-3}
 
+O algoritmo do RSA é, por si só, um algoritmo lento por possuir etapas na
+implementação com manipulação de números primos. Mas ele torna-se ainda mais
+lento com a sua implementação em determinadas linguagens, no nosso caso, foi
+implementado em Python e sendo assim, a implementação torna-se mais lenta que o
+normal.
+
+A segunda dificuldade na implementação do projeto foi manipular inteiros
+e bytes, visto que o algoritmo trabalha com a criptografia de string para
+inteiros e durante o processo, são convertidos para bytes. Além de que, tanto a
+verificação e assinatura também trabalham com inteiros e bytes. Sendo assim,
+essa manipulação tornou-se uma dificuldade, visto que em algumas funções como em
+"oaep\_encode" os inteiros tinham que ser tratados como bytes e por isso foi
+necessário uma maior atenção, além de serem realizados constantes debugs em toda
+a implementação, tornando-a cansativa em alguns momentos.
 
 
 \section{Ambiente}
@@ -58,6 +142,85 @@ que implementam . Além disso,
 
 O ambiente utilizado para construção e teste do trabalho é o GNU/Linux, com o
 python na versão 3.6.9. No Windows o python3 é instalado com o nome python.
-certifique-se de que está utilizando a versão correta com \verb~python --version~.
+certifique-se de que está utilizando a versão correta com \$
+\verb|python --version|\$.
+
+No projeto também há a escrita de testes unitários para garantir o funcionamento
+de partes do sistema. Nesse sentido, para executar os testes certifique-se de
+que está no diretório correto e execute, a depender do diretório, a seguinte
+linha de comando para cada teste:
+
+\begin{lstlisting}[language=Bash]
+$ PYTHONPATH=. python3 '<nome_do_teste>_test.py'
+\end{lstlisting}
+
+Ou, para realizar a execução de todos os testes, utilize a linha de comando
+abaixo dentro da pasta $\verb|src|$.
+
+\begin{lstlisting}[language=Bash]
+$ python3 -m unittest discover -s . -p '*_test.py'
+\end{lstlisting}
+
+
+\subsection{Como utilizar a aplicação?}
+\label{sec-4-1}
+
+A aplicação contém diversos argumentos de entrada afim de facilitar seu uso.
+Para visualizá-las é necessário utilizar a \emph{flag} $\verb|--help|$. As flags
+do programa podem ser visualizadas na tabela abaixo.
+
+\begin{center}
+\begin{tabular}{ll}
+Flag & Descrição\\
+\hline
+-g & Gera um par de chaves (pública e privada)\\
+-k & Utilizado em conjunto com outros comandos para descrever uma chave\\
+-s & Gera a assinatura de um arquivo, precisa ser utilizado com outros três parâmetros\\
+-v & Valida uma assinatura utilizando uma chave pública, a assinatura e o dado em si\\
+-f & Especifica o nome de um arquivo para cifração, assinatura ou decifração de dados\\
+\end{tabular}
+\end{center}
+
+
+Alguns comandos são combinados com outras \emph{flags} para especificar parâmetros
+específicos. Tais comandos, como os de assinatura e validação, se utilizam das
+chaves para funcionarem.
+
+O primeiro passo para utilização da aplicação é a geração do par de chaves que
+pode ser realizado com o parâmetro \emph{-g}.
+
+\begin{lstlisting}[language=Bash]
+$ python3 main.py -g
+\end{lstlisting}
+
+Após a execução desse comando é possível ver que o programa gerou duas chaves,
+uma com a extensão \verb|.pub| e a outra \verb|.prv|. Essas duas chaves podem
+ser utilizadas para cifrar e decifrar como nos exemplos abaixo.
+
+
+\begin{lstlisting}[language=Bash]
+$ python3 main.py -e -f arquivo.txt -k key.pub
+\end{lstlisting}
+
+Observe que após a execução do comando de cifração é possível ver que o programa
+escreveu o criptograma resultante em um arquivo com a extensão \verb|.enc|.
+
+\begin{lstlisting}[language=Bash]
+$ python3 main.py -d -f arquivo.txt.enc -k key.prv
+\end{lstlisting}
+
+A mesma coisa acontece ao decifrar um arquivo .enc, onde o arquivo resultante
+terá a extensão \verb|.dec|. Para assinaturas de arquivos de texto basta
+simplesmente utilizar a \emph{flag} \emph{-s} de acordo com o exemplo abaixo.
+
+
+\begin{lstlisting}[language=Bash]
+$ python3 main.py -s key.pub key.prv data.txt
+\end{lstlisting}
+
+O resultado da execução do comando anterior é um arquivo com a extensão \emph{.sig}
+que contém a assinatura do arquivo \emph{data.txt} em base64. A validação da
+assinatura é análoga, só que utiliza a assinatura, a chave pública e o dado
+em claro.
 % Emacs 25.3.1 (Org mode 8.2.10)
 \end{document}
