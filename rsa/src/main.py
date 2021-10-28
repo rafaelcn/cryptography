@@ -74,17 +74,16 @@ def main():
         if (parser.encrypt):
             pub_key = io.read_key(parser.key)
 
-            filename = io.read(parser.file)
-            encrypted_data = cipher.encrypt(filename, pub_key)
+            data = io.read(parser.file)
+            encrypted_data = cipher.encrypt(data, pub_key)
 
             io.write_cryptogram(parser.file + ".enc", encrypted_data)
 
         elif (parser.decrypt):
             prv_key = io.read_key(parser.key)
 
-            for file in parser.file:
-                filename = io.read(file)
-                cipher.decrypt(filename, prv_key)
+            data = io.read(parser.file)
+            cipher.decrypt(data, prv_key)
     elif (parser.sign):
         pub_key = {}
         prv_key = {}
