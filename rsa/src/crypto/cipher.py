@@ -93,11 +93,16 @@ def encrypt(msg, public_key: dict):
     return c, len(m), len(x), len(y)
 
 
-def decrypt(c: int, private_key: tuple, message_size: int, x: int, y: int):
+def decrypt(data: tuple, private_key: dict):
     """
     Decrypts a message using the private key tuple containing n and d
     """
-    m = pow(c, private_key['d'], private_key['n'])
+    m = pow(data[0], private_key['d'], private_key['n'])
+
+    message_size = data[1]
+
+    x = data[2]
+    y = data[3]
 
     bytes = i2osp(m, message_size)
     message = oaep_decode(bytes[:x], bytes[x:x + y])
